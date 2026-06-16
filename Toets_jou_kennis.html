@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <title>Chemie Toets</title>
+
 <style>
     body {
         font-family: Arial, sans-serif;
         background: #0f172a;
         color: white;
         margin: 0;
-        padding: 0;
         display: flex;
         justify-content: center;
     }
@@ -21,7 +21,6 @@
         background: #111827;
         padding: 20px;
         border-radius: 12px;
-        box-shadow: 0 0 20px rgba(0,0,0,0.5);
     }
 
     h1 { text-align: center; }
@@ -38,18 +37,34 @@
         background: #22c55e;
         width: 0%;
         border-radius: 5px;
-        transition: width 0.3s;
     }
 
-    .qnum {
-        margin-bottom: 10px;
-        color: #93c5fd;
+    .qnum { color: #93c5fd; margin-bottom: 10px; }
+
+    .question { font-size: 20px; margin: 20px 0; }
+
+    .options button {
+        width: 100%;
+        padding: 10px;
+        margin: 5px 0;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        background: #374151;
+        color: white;
+        font-size: 16px;
     }
 
-    .question {
-        font-size: 20px;
-        margin: 20px 0;
+    .options button:hover {
+        background: #4b5563;
     }
+
+    .correct { background: #22c55e !important; }
+    .wrong { background: #ef4444 !important; }
+
+    .result { margin-top: 10px; font-size: 18px; }
+
+    .hidden { display: none; }
 
     input {
         width: 100%;
@@ -57,52 +72,18 @@
         font-size: 16px;
         border-radius: 8px;
         border: none;
-        margin-bottom: 10px;
+        margin: 10px 0;
     }
 
-    button {
+    button.start {
+        width: 100%;
         padding: 10px;
         border: none;
         border-radius: 8px;
-        margin: 5px;
-        cursor: pointer;
+        background: #3b82f6;
+        color: white;
         font-weight: bold;
-    }
-
-    .check { background: #3b82f6; color: white; }
-    .next { background: #22c55e; color: white; }
-    .stop { background: #ef4444; color: white; }
-
-    .result {
-        font-size: 18px;
-        margin-top: 10px;
-    }
-
-    .correct { color: #22c55e; }
-    .wrong { color: #ef4444; }
-
-    table {
-        width: 100%;
-        margin-top: 20px;
-        border-collapse: collapse;
-    }
-
-    td, th {
-        border: 1px solid #374151;
-        padding: 8px;
-        text-align: center;
-    }
-
-    .confetti {
-        font-size: 30px;
-        text-align: center;
-        animation: pop 1s ease infinite;
-    }
-
-    @keyframes pop {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.2); }
-        100% { transform: scale(1); }
+        cursor: pointer;
     }
 </style>
 </head>
@@ -110,136 +91,151 @@
 <body>
 
 <div class="container">
-    <h1>⚗️ Chemie Toets</h1>
 
-    <div class="progress"><div class="bar" id="bar"></div></div>
-    <div class="qnum" id="qnum"></div>
-
-    <div class="question" id="question"></div>
-
-    <input id="answer" placeholder="Tik jou antwoord...">
-
-    <div>
-        <button class="check" onclick="check()">Kontroleer</button>
-        <button class="next" onclick="next()">Volgende</button>
-        <button class="stop" onclick="stopTest()">Stop Toets</button>
+    <!-- START SKERM -->
+    <div id="startScreen">
+        <h1>⚗️ Chemie Toets</h1>
+        <p>Hoeveel vrae wil jy hê? (5 - 50)</p>
+        <input type="number" id="amount" min="5" max="50" value="10">
+        <button class="start" onclick="startQuiz()">Begin Toets</button>
     </div>
 
-    <div class="result" id="result"></div>
+    <!-- QUIZ -->
+    <div id="quiz" class="hidden">
 
-    <div id="review"></div>
+        <div class="progress"><div class="bar" id="bar"></div></div>
+        <div class="qnum" id="qnum"></div>
+
+        <div class="question" id="question"></div>
+
+        <div class="options" id="options"></div>
+
+        <div class="result" id="result"></div>
+        <div id="review"></div>
+    </div>
+
 </div>
 
 <script>
+
 const data = [
-    {q:"OH⁻", a:["hidroksied","hydroxide"]},
-    {q:"NO3⁻", a:["nitraation"]},
-    {q:"NH4⁺", a:["ammonium"]},
-    {q:"H2O", a:["water"]},
-    {q:"CO3²⁻", a:["karbonaation"]},
-    {q:"ClO3⁻", a:["chloraation"]},
-    {q:"SO4²⁻", a:["sulfaatioon"]},
-    {q:"PO4³⁻", a:["fosfaation"]},
-    {q:"HCl", a:["soutsuur"]},
-    {q:"NO2⁻", a:["nitrietioon"]}
+    {q:"OH⁻", a:"hidroksied"},
+    {q:"NO3⁻", a:"nitraation"},
+    {q:"NH4⁺", a:"ammonium"},
+    {q:"H2O", a:"water"},
+    {q:"CO3²⁻", a:"karbonaation"},
+    {q:"ClO3⁻", a:"chloraation"},
+    {q:"SO4²⁻", a:"sulfaatioon"},
+    {q:"PO4³⁻", a:"fosfaation"},
+    {q:"HCl", a:"soutsuur"},
+    {q:"NO2⁻", a:"nitrietioon"}
 ];
 
+let quizData = [];
 let index = 0;
 let score = 0;
 let answers = [];
 
-function normalize(input){
-    return input.toLowerCase()
-        .replace(/\s/g,'')
-        .replace(/−/g,'-')
-        .replace(/\(.*?\)/g,'');
+function shuffle(arr){
+    return arr.sort(() => Math.random() - 0.5);
+}
+
+function startQuiz(){
+    let amount = parseInt(document.getElementById("amount").value);
+
+    if(amount < 5) amount = 5;
+    if(amount > 50) amount = 50;
+    if(amount > data.length) amount = data.length;
+
+    quizData = shuffle([...data]).slice(0, amount);
+
+    document.getElementById("startScreen").classList.add("hidden");
+    document.getElementById("quiz").classList.remove("hidden");
+
+    show();
+}
+
+function makeOptions(correct){
+    let options = new Set();
+    options.add(correct);
+
+    while(options.size < 4){
+        let rand = data[Math.floor(Math.random() * data.length)].a;
+        options.add(rand);
+    }
+
+    return shuffle([...options]);
 }
 
 function show(){
-    document.getElementById("question").innerText = data[index].q;
-    document.getElementById("qnum").innerText = `Vraag ${index+1} van ${data.length}`;
-    document.getElementById("bar").style.width = ((index)/data.length)*100 + "%";
-    document.getElementById("answer").value = "";
+    document.getElementById("result").innerHTML = "";
+
+    let q = quizData[index];
+
+    document.getElementById("question").innerText = q.q;
+    document.getElementById("qnum").innerText =
+        `Vraag ${index+1} van ${quizData.length}`;
+
+    document.getElementById("bar").style.width =
+        (index / quizData.length) * 100 + "%";
+
+    let opts = makeOptions(q.a);
+
+    let html = "";
+    opts.forEach(o => {
+        html += `<button onclick="check('${o}')">${o}</button>`;
+    });
+
+    document.getElementById("options").innerHTML = html;
 }
 
-function check(){
-    let user = normalize(document.getElementById("answer").value);
-    let correct = data[index].a.some(a => normalize(a) === user);
+function check(answer){
+    let correct = quizData[index].a;
 
-    if(correct){
+    let ok = answer === correct;
+
+    if(ok){
         document.getElementById("result").innerHTML = "✔ Reg!";
-        document.getElementById("result").className = "result correct";
         score++;
     } else {
-        document.getElementById("result").innerHTML = "✖ Verkeerd!";
-        document.getElementById("result").className = "result wrong";
+        document.getElementById("result").innerHTML =
+            `✖ Verkeerd! Regte antwoord: ${correct}`;
     }
 
     answers.push({
-        q: data[index].q,
-        user: document.getElementById("answer").value,
-        correct: data[index].a[0],
-        ok: correct
+        q: quizData[index].q,
+        user: answer,
+        correct: correct,
+        ok: ok
     });
 
-    setTimeout(next, 1500);
+    setTimeout(next, 1000);
 }
 
 function next(){
     index++;
-    if(index >= data.length){
+
+    if(index >= quizData.length){
         finish();
         return;
     }
+
     show();
-    document.getElementById("result").innerHTML = "";
 }
 
 function finish(){
     document.getElementById("bar").style.width = "100%";
     document.getElementById("question").innerHTML = "🎉 Toets Voltooi!";
-    document.getElementById("qnum").innerHTML = "";
-    document.getElementById("answer").style.display = "none";
+    document.getElementById("options").innerHTML = "";
 
-    let percent = Math.round((score/data.length)*100);
+    let percent = Math.round((score/quizData.length)*100);
 
     document.getElementById("result").innerHTML =
-        `Punt: ${score}/${data.length} (${percent}%) <div class="confetti">🎊</div>`;
-
-    reviewAsk();
+        `Punt: ${score}/${quizData.length} (${percent}%)`;
 }
 
-function stopTest(){
-    let percent = Math.round((score/(index||1))*100);
-    alert(`Gestop!\nScore: ${score}/${index}\n${percent}%`);
-}
-
-function reviewAsk(){
-    setTimeout(()=>{
-        if(confirm("Wil jy deur jou antwoorde gaan?")){
-            review();
-        }
-    },500);
-}
-
-function review(){
-    let html = "<h3>📋 Hersiening</h3><table><tr><th>Vraag</th><th>Jou antwoord</th><th>Regte antwoord</th><th>Status</th></tr>";
-
-    answers.forEach(a=>{
-        html += `<tr style="background:${a.ok?'#14532d':'#7f1d1d'}">
-            <td>${a.q}</td>
-            <td style="color:#60a5fa">${a.user}</td>
-            <td style="color:#22c55e">${a.correct}</td>
-            <td>${a.ok ? "✔" : "✖"}</td>
-        </tr>`;
-    });
-
-    html += "</table>";
-    document.getElementById("review").innerHTML = html;
-}
-
-show();
 </script>
 
 </body>
 </html>
+
