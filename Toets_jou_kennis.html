@@ -23,9 +23,279 @@
             margin: 0;
         }
 
+        #appContainer {
+            width: 100%;
+            max-width: 860px;
+        }
+
+        /* GEBRUIKER STELSEL STYLE */
+        #userSystem {
+            background: #0f172a;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border: 1px solid #1e293b;
+        }
+
+        #userLoginForm {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #userLoginForm .btn {
+            border: none;
+            border-radius: 40px;
+            padding: 10px 20px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: 0.15s;
+            letter-spacing: 0.2px;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+        .btn-primary:hover {
+            background: #1d4ed8;
+            transform: scale(1.02);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #334155;
+            color: #cbd5e1;
+        }
+        .btn-outline:hover {
+            background: #1e293b;
+        }
+
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+
+        .btn-sm {
+            padding: 6px 14px;
+            font-size: 0.8rem;
+        }
+
+        #userStatus {
+            margin-top: 8px;
+            font-size: 0.9rem;
+            color: #94a3b8;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        #userStatus .user-detail {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        #userStatus .user-detail span {
+            padding: 2px 10px;
+            background: #1e293b;
+            border-radius: 12px;
+            font-size: 0.8rem;
+        }
+
+        /* POPUP STYLES */
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .popup-overlay.show {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .popup-box {
+            background: #1e293b;
+            padding: 32px 40px;
+            border-radius: 24px;
+            max-width: 420px;
+            width: 90%;
+            border: 1px solid #334155;
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.6);
+            position: relative;
+        }
+
+        .popup-box h2 {
+            color: #e2e8f0;
+            font-size: 1.8rem;
+            margin-bottom: 4px;
+            text-align: center;
+        }
+
+        .popup-box .subtitle {
+            color: #94a3b8;
+            font-size: 0.95rem;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .popup-box .input-group {
+            margin-bottom: 16px;
+        }
+
+        .popup-box .input-group label {
+            display: block;
+            color: #94a3b8;
+            font-size: 0.85rem;
+            margin-bottom: 4px;
+        }
+
+        .popup-box .input-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1px solid #2d3a52;
+            background: #0b1220;
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            transition: 0.15s;
+        }
+
+        .popup-box .input-group input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .popup-box .input-group input::placeholder {
+            color: #4b5a77;
+        }
+
+        .popup-box .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .popup-box .btn-group .btn {
+            flex: 1;
+            min-width: 100px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: 0.15s;
+            text-align: center;
+        }
+
+        .popup-box .btn-group .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+        .popup-box .btn-group .btn-primary:hover {
+            background: #1d4ed8;
+        }
+
+        .popup-box .btn-group .btn-secondary {
+            background: transparent;
+            border: 1px solid #334155;
+            color: #94a3b8;
+        }
+        .popup-box .btn-group .btn-secondary:hover {
+            background: #1e293b;
+        }
+
+        .popup-box .btn-group .btn-success {
+            background: #16a34a;
+            color: white;
+        }
+        .popup-box .btn-group .btn-success:hover {
+            background: #15803d;
+        }
+
+        .popup-box .error-msg {
+            color: #f87171;
+            font-size: 0.9rem;
+            margin-top: 12px;
+            text-align: center;
+            min-height: 24px;
+        }
+
+        .popup-box .success-msg {
+            color: #4ade80;
+            font-size: 0.9rem;
+            margin-top: 12px;
+            text-align: center;
+            min-height: 24px;
+        }
+
+        .popup-box .close-btn {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            background: none;
+            border: none;
+            color: #64748b;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .popup-box .close-btn:hover {
+            color: #e2e8f0;
+            transform: rotate(90deg);
+        }
+
+        .popup-box .switch-action {
+            text-align: center;
+            margin-top: 16px;
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+        .popup-box .switch-action a {
+            color: #60a5fa;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .popup-box .switch-action a:hover {
+            text-decoration: underline;
+        }
+
+        /* SPEELTJIE STYLE */
         .game-wrapper {
             width: 100%;
-            max-width: 820px;
             background: #111827;
             border-radius: 32px;
             padding: 20px 20px 24px;
@@ -33,6 +303,12 @@
             border: 1px solid #1e293b;
             position: relative;
             overflow: hidden;
+            transition: opacity 0.3s, pointer-events 0.3s;
+        }
+
+        .game-wrapper.disabled {
+            opacity: 0.5;
+            pointer-events: none;
         }
 
         .canvas-wrap {
@@ -154,14 +430,6 @@
             transform: none;
         }
 
-        .btn-danger {
-            background: #dc2626;
-            color: white;
-        }
-        .btn-danger:hover {
-            background: #b91c1c;
-        }
-
         .btn-lava {
             background: #ea580c;
             color: white;
@@ -187,13 +455,12 @@
             }
         }
 
-        .btn-outline {
-            background: transparent;
-            border: 1px solid #334155;
-            color: #cbd5e1;
+        .btn-danger {
+            background: #dc2626;
+            color: white;
         }
-        .btn-outline:hover {
-            background: #1e293b;
+        .btn-danger:hover {
+            background: #b91c1c;
         }
 
         .stats-row {
@@ -233,6 +500,9 @@
         .stats-row .num.purple {
             color: #a78bfa;
         }
+        .stats-row .num.cyan {
+            color: #22d3ee;
+        }
 
         .feedback-msg {
             font-size: 0.95rem;
@@ -259,6 +529,7 @@
             color: #fbbf24;
             font-weight: 600;
         }
+
         @keyframes lavaWarning {
             0% {
                 opacity: 0.6;
@@ -286,17 +557,6 @@
         }
         .game-over-overlay.show {
             display: flex;
-        }
-
-        @keyframes fadeIn {
-            0% {
-                opacity: 0;
-                transform: scale(0.95);
-            }
-            100% {
-                opacity: 1;
-                transform: scale(1);
-            }
         }
 
         .game-over-box {
@@ -348,6 +608,24 @@
             padding: 12px 20px;
         }
 
+        .stats-extra {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            color: #94a3b8;
+            font-size: 0.9rem;
+            flex-wrap: wrap;
+        }
+        .stats-extra span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .stats-extra .num {
+            font-weight: 600;
+            color: #e2e8f0;
+        }
+
         @media (max-width: 600px) {
             .game-wrapper {
                 padding: 12px;
@@ -378,6 +656,16 @@
                 gap: 12px;
                 font-size: 0.8rem;
             }
+            .popup-box {
+                padding: 24px 20px;
+            }
+            .popup-box h2 {
+                font-size: 1.4rem;
+            }
+            #userLoginForm .btn {
+                font-size: 0.85rem;
+                padding: 8px 14px;
+            }
         }
 
         @media (max-width: 400px) {
@@ -399,6 +687,10 @@
             .input-row .btn {
                 width: 100%;
             }
+            .popup-box .btn-group .btn {
+                min-width: 80px;
+                font-size: 0.85rem;
+            }
         }
 
         ::-webkit-scrollbar {
@@ -415,61 +707,578 @@
 </head>
 <body>
 
-    <div class="game-wrapper" id="app">
-        <!-- CANVAS -->
-        <div class="canvas-wrap" id="canvasWrap">
-            <canvas id="gameCanvas" width="800" height="480"></canvas>
-
-            <!-- GAME OVER OVERLAY -->
-            <div class="game-over-overlay" id="gameOverOverlay">
-                <div class="game-over-box">
-                    <h2 id="gameOverTitle">💥 O nee!</h2>
-                    <p class="sub" id="gameOverSub">Die mannetjie het afgeval!</p>
-                    <div class="big-score" id="finalScore">0</div>
-                    <div class="big-label">✅ korrekte antwoorde</div>
-                    <hr class="divider" />
-                    <div style="display:flex; justify-content:center; gap:20px; color:#94a3b8; font-size:0.9rem;">
-                        <span>📦 <span id="finalBlocks" style="color:#e2e8f0;font-weight:600;">0</span> blokke</span>
-                        <span>🔥 <span id="finalStreak" style="color:#fbbf24;font-weight:600;">0</span> langste reeks</span>
-                        <span>🏔️ <span id="finalBestHeight" style="color:#a78bfa;font-weight:600;">0</span></span>
-                    </div>
-                    <div class="btn-group">
-                        <button class="btn btn-primary" onclick="restartGame()">🔄 Probeer weer</button>
-                        <button class="btn btn-outline" onclick="quitGame()">🏠 Stoppe</button>
-                    </div>
+    <div id="appContainer">
+        <!-- ============================================================ -->
+        <!-- GEBRUIKER STELSEL -->
+        <!-- ============================================================ -->
+        <div id="userSystem">
+            <div id="userLoginForm">
+                <span id="currentUserDisplay" style="flex:1; color:#94a3b8; font-size:0.95rem;">👤 Nie ingeteken nie</span>
+                <button class="btn btn-primary" id="showLoginBtn">🔓 Teken In</button>
+                <button class="btn btn-outline" id="showRegisterBtn">📝 Registreer</button>
+                <button class="btn btn-danger" id="logoutBtn" style="display:none;">🚪 Teken Uit</button>
+                <button class="btn btn-outline btn-sm" id="resetStatsBtn" style="display:none;">🗑️ Reset Stats</button>
+            </div>
+            <div id="userStatus">
+                <div class="user-detail" id="userStatsDisplay" style="display:none;">
+                    <span>✅ <span id="userTotalCorrect">0</span></span>
+                    <span>🏆 <span id="userBestStreak">0</span></span>
+                    <span>📦 <span id="userTotalBlocks">0</span></span>
+                    <span>🎮 <span id="userGamesPlayed">0</span></span>
                 </div>
             </div>
         </div>
 
-        <!-- UI PANEL -->
-        <div class="ui-panel">
-            <div class="question-row">
-                <span class="q-label" id="qText">H₂O</span>
-                <span class="q-hint" id="qHint">📝 tik die naam</span>
+        <!-- ============================================================ -->
+        <!-- LOGIN POPUP -->
+        <!-- ============================================================ -->
+        <div class="popup-overlay" id="loginPopup">
+            <div class="popup-box">
+                <button class="close-btn" id="closeLoginPopup">✕</button>
+                <h2>🔓 Teken In</h2>
+                <p class="subtitle">Teken in om jou vordering te stoor</p>
+                <div class="input-group">
+                    <label>👤 Gebruikersnaam</label>
+                    <input type="text" id="loginUsername" placeholder="Voer jou gebruikersnaam in" autocomplete="username" />
+                </div>
+                <div class="input-group">
+                    <label>🔑 Wagwoord</label>
+                    <input type="password" id="loginPassword" placeholder="Voer jou wagwoord in" autocomplete="current-password" />
+                </div>
+                <div class="error-msg" id="loginError"></div>
+                <div class="btn-group">
+                    <button class="btn btn-primary" id="loginSubmitBtn">🔓 Teken In</button>
+                    <button class="btn btn-secondary" id="loginCancelBtn">Kanselleer</button>
+                </div>
+                <div class="switch-action">
+                    Nie 'n gebruiker nie? <a id="switchToRegister">Registreer hier</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- REGISTER POPUP -->
+        <!-- ============================================================ -->
+        <div class="popup-overlay" id="registerPopup">
+            <div class="popup-box">
+                <button class="close-btn" id="closeRegisterPopup">✕</button>
+                <h2>📝 Registreer</h2>
+                <p class="subtitle">Skep 'n nuwe gebruiker om jou vordering te stoor</p>
+                <div class="input-group">
+                    <label>👤 Kies 'n gebruikersnaam</label>
+                    <input type="text" id="registerUsername" placeholder="Minstens 3 karakters" autocomplete="username" />
+                </div>
+                <div class="input-group">
+                    <label>🔑 Kies 'n wagwoord</label>
+                    <input type="password" id="registerPassword" placeholder="Minstens 4 karakters" autocomplete="new-password" />
+                </div>
+                <div class="input-group">
+                    <label>🔑 Bevestig wagwoord</label>
+                    <input type="password" id="registerConfirmPassword" placeholder="Bevestig jou wagwoord" autocomplete="new-password" />
+                </div>
+                <div class="error-msg" id="registerError"></div>
+                <div class="btn-group">
+                    <button class="btn btn-success" id="registerSubmitBtn">📝 Registreer</button>
+                    <button class="btn btn-secondary" id="registerCancelBtn">Kanselleer</button>
+                </div>
+                <div class="switch-action">
+                    Het jy reeds 'n gebruiker? <a id="switchToLogin">Teken in hier</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- SPEELTJIE -->
+        <!-- ============================================================ -->
+        <div class="game-wrapper" id="app">
+            <!-- CANVAS -->
+            <div class="canvas-wrap" id="canvasWrap">
+                <canvas id="gameCanvas" width="800" height="480"></canvas>
+
+                <!-- GAME OVER OVERLAY -->
+                <div class="game-over-overlay" id="gameOverOverlay">
+                    <div class="game-over-box">
+                        <h2 id="gameOverTitle">💥 O nee!</h2>
+                        <p class="sub" id="gameOverSub">Die mannetjie het afgeval!</p>
+                        <div class="big-score" id="finalScore">0</div>
+                        <div class="big-label">✅ korrekte antwoorde</div>
+                        <hr class="divider" />
+                        <div class="stats-extra">
+                            <span>📦 <span class="num" id="finalBlocks">0</span> blokke</span>
+                            <span>🔥 <span class="num" id="finalStreak">0</span> beste reeks</span>
+                            <span>🏔️ <span class="num" id="finalBestHeight">0</span></span>
+                            <span>✅ <span class="num" id="finalTotalCorrect">0</span> totaal</span>
+                            <span>❌ <span class="num" id="finalTotalWrong">0</span> foute</span>
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn btn-primary" onclick="restartGame()">🔄 Probeer weer</button>
+                            <button class="btn btn-outline" onclick="quitGame()">🏠 Stoppe</button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="input-row">
-                <input type="text" id="answerInput" placeholder="Skryf jou antwoord..." autofocus />
-                <button class="btn btn-primary" id="submitBtn">⏎ Submit</button>
-                <button class="btn btn-lava" id="lavaBtn">🌋 Lava Mode</button>
-            </div>
+            <!-- UI PANEL -->
+            <div class="ui-panel">
+                <div class="question-row">
+                    <span class="q-label" id="qText">H₂O</span>
+                    <span class="q-hint" id="qHint">📝 tik die naam</span>
+                </div>
 
-            <div class="feedback-msg info" id="feedbackMsg">💡 Tik jou antwoord en druk Enter</div>
+                <div class="input-row">
+                    <input type="text" id="answerInput" placeholder="Skryf jou antwoord..." autofocus />
+                    <button class="btn btn-primary" id="submitBtn">⏎ Submit</button>
+                    <button class="btn btn-lava" id="lavaBtn">🌋 Lava Mode</button>
+                </div>
 
-            <div class="stats-row">
-                <span>✅ Korrek: <span class="num green" id="scoreDisplay">0</span></span>
-                <span>🔥 Reeks: <span class="num gold" id="streakDisplay">0</span></span>
-                <span>📦 Hoogte: <span class="num blue" id="heightDisplay">3</span></span>
-                <span>🏔️ Beste hoogte: <span class="num purple" id="bestHeightDisplay">3</span></span>
-                <span id="lavaStatus" style="display:none;">🌋 <span class="num lava" id="lavaLevelDisplay">0</span></span>
+                <div class="feedback-msg info" id="feedbackMsg">💡 Tik jou antwoord en druk Enter</div>
+
+                <div class="stats-row">
+                    <span>✅ Korrek: <span class="num green" id="scoreDisplay">0</span></span>
+                    <span>🔥 Reeks: <span class="num gold" id="streakDisplay">0</span></span>
+                    <span>📦 Hoogte: <span class="num blue" id="heightDisplay">3</span></span>
+                    <span>🏔️ Beste hoogte: <span class="num purple" id="bestHeightDisplay">3</span></span>
+                    <span id="lavaStatus" style="display:none;">🌋 <span class="num lava" id="lavaLevelDisplay">0</span></span>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // ============================================================
+        // ================================================================
+        //   GEBRUIKER STELSEL
+        // ================================================================
+
+        class UserSystem {
+            constructor() {
+                this.currentUser = null;
+                this.users = this.loadAllUsers();
+                this.storageKey = 'chemieUsers_v2';
+            }
+
+            loadAllUsers() {
+                try {
+                    const data = localStorage.getItem(this.storageKey);
+                    if (data) {
+                        return JSON.parse(data);
+                    }
+                } catch (e) {
+                    console.warn('Failed to load users:', e);
+                }
+                return {};
+            }
+
+            saveAllUsers() {
+                try {
+                    localStorage.setItem(this.storageKey, JSON.stringify(this.users));
+                    return true;
+                } catch (e) {
+                    console.warn('Failed to save users:', e);
+                    return false;
+                }
+            }
+
+            register(username, password, confirmPassword) {
+                // Validate
+                if (this.users[username]) {
+                    return { success: false, message: '❌ Gebruikersnaam bestaan reeds!' };
+                }
+                if (username.length < 3) {
+                    return { success: false, message: '❌ Gebruikersnaam moet minstens 3 karakters wees!' };
+                }
+                if (password.length < 4) {
+                    return { success: false, message: '❌ Wagwoord moet minstens 4 karakters wees!' };
+                }
+                if (password !== confirmPassword) {
+                    return { success: false, message: '❌ Wagwoorde stem nie ooreen nie!' };
+                }
+
+                this.users[username] = {
+                    password: this.hashPassword(password),
+                    stats: this.getDefaultStats(),
+                    created: new Date().toISOString(),
+                    lastLogin: new Date().toISOString(),
+                };
+
+                this.saveAllUsers();
+                return { success: true, message: '✅ Registrasie suksesvol! Teken nou in.' };
+            }
+
+            login(username, password) {
+                const user = this.users[username];
+                if (!user) {
+                    return { success: false, message: '❌ Gebruikersnaam bestaan nie!' };
+                }
+                if (this.hashPassword(password) !== user.password) {
+                    return { success: false, message: '❌ Verkeerde wagwoord!' };
+                }
+
+                user.lastLogin = new Date().toISOString();
+                this.saveAllUsers();
+                this.currentUser = username;
+
+                // Save session
+                sessionStorage.setItem('chemieUser', username);
+
+                return { success: true, message: `✅ Welkom terug, ${username}!` };
+            }
+
+            logout() {
+                this.currentUser = null;
+                sessionStorage.removeItem('chemieUser');
+                return { success: true, message: '👋 Jy is uitgeteken!' };
+            }
+
+            getUserStats() {
+                if (!this.currentUser) return null;
+                const user = this.users[this.currentUser];
+                return user ? user.stats : null;
+            }
+
+            updateUserStats(newStats) {
+                if (!this.currentUser) return false;
+                const user = this.users[this.currentUser];
+                if (!user) return false;
+
+                user.stats = { ...user.stats, ...newStats };
+                this.saveAllUsers();
+                return true;
+            }
+
+            getDefaultStats() {
+                return {
+                    totalCorrect: 0,
+                    totalWrong: 0,
+                    bestStreak: 0,
+                    bestHeight: 3,
+                    gamesPlayed: 0,
+                    lavaModeUsed: 0,
+                    totalBlocksStacked: 0,
+                    lastPlayed: new Date().toISOString(),
+                };
+            }
+
+            hashPassword(password) {
+                let hash = 0;
+                for (let i = 0; i < password.length; i++) {
+                    const char = password.charCodeAt(i);
+                    hash = ((hash << 5) - hash) + char;
+                    hash = hash & hash;
+                }
+                return hash.toString(36);
+            }
+
+            resetUserStats() {
+                if (!this.currentUser) return { success: false, message: '❌ Geen gebruiker ingeteken nie!' };
+                const user = this.users[this.currentUser];
+                if (!user) return { success: false, message: '❌ Gebruiker bestaan nie!' };
+
+                user.stats = this.getDefaultStats();
+                this.saveAllUsers();
+                return { success: true, message: '✅ Statistieke is teruggestel!' };
+            }
+        }
+
+        // ================================================================
+        //   STEL GEBRUIKER STELSEL OP
+        // ================================================================
+
+        const userSystem = new UserSystem();
+
+        // ================================================================
+        //   POPUP FUNKSIES
+        // ================================================================
+
+        function showLoginPopup() {
+            document.getElementById('loginPopup').classList.add('show');
+            document.getElementById('loginUsername').value = '';
+            document.getElementById('loginPassword').value = '';
+            document.getElementById('loginError').textContent = '';
+            document.getElementById('loginUsername').focus();
+        }
+
+        function hideLoginPopup() {
+            document.getElementById('loginPopup').classList.remove('show');
+        }
+
+        function showRegisterPopup() {
+            document.getElementById('registerPopup').classList.add('show');
+            document.getElementById('registerUsername').value = '';
+            document.getElementById('registerPassword').value = '';
+            document.getElementById('registerConfirmPassword').value = '';
+            document.getElementById('registerError').textContent = '';
+            document.getElementById('registerUsername').focus();
+        }
+
+        function hideRegisterPopup() {
+            document.getElementById('registerPopup').classList.remove('show');
+        }
+
+        // ================================================================
+        //   UI FUNKSIES
+        // ================================================================
+
+        function updateUserUI() {
+            const currentUserDisplay = document.getElementById('currentUserDisplay');
+            const showLoginBtn = document.getElementById('showLoginBtn');
+            const showRegisterBtn = document.getElementById('showRegisterBtn');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const resetStatsBtn = document.getElementById('resetStatsBtn');
+            const userStatsDisplay = document.getElementById('userStatsDisplay');
+            const app = document.getElementById('app');
+
+            if (userSystem.currentUser) {
+                const stats = userSystem.getUserStats();
+                currentUserDisplay.innerHTML = `
+                    👤 <strong style="color:#60a5fa;">${userSystem.currentUser}</strong>
+                `;
+                showLoginBtn.style.display = 'none';
+                showRegisterBtn.style.display = 'none';
+                logoutBtn.style.display = 'inline-block';
+                resetStatsBtn.style.display = 'inline-block';
+                userStatsDisplay.style.display = 'flex';
+                app.classList.remove('disabled');
+
+                // Update user stats display
+                document.getElementById('userTotalCorrect').textContent = stats?.totalCorrect || 0;
+                document.getElementById('userBestStreak').textContent = stats?.bestStreak || 0;
+                document.getElementById('userTotalBlocks').textContent = stats?.totalBlocksStacked || 0;
+                document.getElementById('userGamesPlayed').textContent = stats?.gamesPlayed || 0;
+
+            } else {
+                currentUserDisplay.innerHTML = '👤 Nie ingeteken nie';
+                showLoginBtn.style.display = 'inline-block';
+                showRegisterBtn.style.display = 'inline-block';
+                logoutBtn.style.display = 'none';
+                resetStatsBtn.style.display = 'none';
+                userStatsDisplay.style.display = 'none';
+                app.classList.add('disabled');
+            }
+        }
+
+        // ================================================================
+        //   EVENT LISTENERS - POPUPS
+        // ================================================================
+
+        // Show login popup
+        document.getElementById('showLoginBtn').addEventListener('click', showLoginPopup);
+
+        // Show register popup
+        document.getElementById('showRegisterBtn').addEventListener('click', showRegisterPopup);
+
+        // Close login popup
+        document.getElementById('closeLoginPopup').addEventListener('click', hideLoginPopup);
+        document.getElementById('loginCancelBtn').addEventListener('click', hideLoginPopup);
+
+        // Close register popup
+        document.getElementById('closeRegisterPopup').addEventListener('click', hideRegisterPopup);
+        document.getElementById('registerCancelBtn').addEventListener('click', hideRegisterPopup);
+
+        // Switch between login and register
+        document.getElementById('switchToRegister').addEventListener('click', function() {
+            hideLoginPopup();
+            setTimeout(showRegisterPopup, 200);
+        });
+
+        document.getElementById('switchToLogin').addEventListener('click', function() {
+            hideRegisterPopup();
+            setTimeout(showLoginPopup, 200);
+        });
+
+        // Close popups on overlay click
+        document.querySelectorAll('.popup-overlay').forEach(overlay => {
+            overlay.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('show');
+                }
+            });
+        });
+
+        // ================================================================
+        //   EVENT LISTENERS - LOGIN
+        // ================================================================
+
+        document.getElementById('loginSubmitBtn').addEventListener('click', function() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            if (!username || !password) {
+                document.getElementById('loginError').textContent = '❌ Vul asseblief beide velde in!';
+                return;
+            }
+
+            const result = userSystem.login(username, password);
+            if (result.success) {
+                document.getElementById('loginError').textContent = '';
+                hideLoginPopup();
+                updateUserUI();
+                loadUserStatsIntoGame();
+                if (typeof restartGame === 'function') {
+                    restartGame();
+                }
+                feedbackMsg.className = 'feedback-msg correct';
+                feedbackMsg.textContent = result.message;
+            } else {
+                document.getElementById('loginError').textContent = result.message;
+            }
+        });
+
+        // Enter key for login
+        document.getElementById('loginPassword').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('loginSubmitBtn').click();
+            }
+        });
+
+        document.getElementById('loginUsername').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('loginPassword').focus();
+            }
+        });
+
+        // ================================================================
+        //   EVENT LISTENERS - REGISTER
+        // ================================================================
+
+        document.getElementById('registerSubmitBtn').addEventListener('click', function() {
+            const username = document.getElementById('registerUsername').value.trim();
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('registerConfirmPassword').value;
+
+            if (!username || !password || !confirmPassword) {
+                document.getElementById('registerError').textContent = '❌ Vul asseblief alle velde in!';
+                return;
+            }
+
+            const result = userSystem.register(username, password, confirmPassword);
+            if (result.success) {
+                document.getElementById('registerError').textContent = '';
+                hideRegisterPopup();
+                // Auto-fill login form
+                document.getElementById('loginUsername').value = username;
+                document.getElementById('loginPassword').value = password;
+                // Show login popup
+                setTimeout(showLoginPopup, 300);
+                feedbackMsg.className = 'feedback-msg info';
+                feedbackMsg.textContent = result.message + ' Teken nou in.';
+            } else {
+                document.getElementById('registerError').textContent = result.message;
+            }
+        });
+
+        // Enter key for register
+        document.getElementById('registerConfirmPassword').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('registerSubmitBtn').click();
+            }
+        });
+
+        document.getElementById('registerPassword').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('registerConfirmPassword').focus();
+            }
+        });
+
+        document.getElementById('registerUsername').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('registerPassword').focus();
+            }
+        });
+
+        // ================================================================
+        //   EVENT LISTENERS - LOGOUT & RESET
+        // ================================================================
+
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            const result = userSystem.logout();
+            updateUserUI();
+            if (typeof restartGame === 'function') {
+                restartGame();
+            }
+            feedbackMsg.className = 'feedback-msg info';
+            feedbackMsg.textContent = result.message;
+        });
+
+        document.getElementById('resetStatsBtn').addEventListener('click', function() {
+            if (confirm('⚠️ Wil jy AL jou statistieke uitvee? Dit kan nie ongedaan gemaak word nie!')) {
+                const result = userSystem.resetUserStats();
+                if (result.success) {
+                    updateUserUI();
+                    loadUserStatsIntoGame();
+                    feedbackMsg.className = 'feedback-msg info';
+                    feedbackMsg.textContent = result.message;
+                } else {
+                    alert(result.message);
+                }
+            }
+        });
+
+        // ================================================================
+        //   INTEGRASIE MET SPEELTJIE
+        // ================================================================
+
+        function loadUserStatsIntoGame() {
+            if (!userSystem.currentUser) return;
+            const stats = userSystem.getUserStats();
+            if (!stats) return;
+
+            if (typeof window.updateBestHeightFromUser === 'function') {
+                window.updateBestHeightFromUser(stats.bestHeight || 3);
+            }
+
+            document.getElementById('totalCorrectDisplay').textContent = stats.totalCorrect || 0;
+            document.getElementById('bestStreakDisplay').textContent = stats.bestStreak || 0;
+            document.getElementById('gamesPlayedDisplay').textContent = stats.gamesPlayed || 0;
+            document.getElementById('bestHeightDisplay').textContent = stats.bestHeight || 3;
+
+            console.log('📊 User stats loaded:', stats);
+        }
+
+        function recordUserCorrect(streakCount, heightCount) {
+            if (!userSystem.currentUser) return;
+
+            const stats = userSystem.getUserStats();
+            if (!stats) return;
+
+            stats.totalCorrect = (stats.totalCorrect || 0) + 1;
+            stats.totalBlocksStacked = (stats.totalBlocksStacked || 0) + 1;
+            if (streakCount > (stats.bestStreak || 0)) {
+                stats.bestStreak = streakCount;
+            }
+            if (heightCount > (stats.bestHeight || 0)) {
+                stats.bestHeight = heightCount;
+            }
+
+            userSystem.updateUserStats(stats);
+            updateUserUI();
+        }
+
+        function recordUserWrong() {
+            if (!userSystem.currentUser) return;
+
+            const stats = userSystem.getUserStats();
+            if (!stats) return;
+
+            stats.totalWrong = (stats.totalWrong || 0) + 1;
+            userSystem.updateUserStats(stats);
+            updateUserUI();
+        }
+
+        function recordGamePlayed() {
+            if (!userSystem.currentUser) return;
+
+            const stats = userSystem.getUserStats();
+            if (!stats) return;
+
+            stats.gamesPlayed = (stats.gamesPlayed || 0) + 1;
+            userSystem.updateUserStats(stats);
+            updateUserUI();
+        }
+
+        // ================================================================
         //   CHEMIE VRAAGBANK
-        // ============================================================
+        // ================================================================
+
         const CHEM_BANK = [
             { display: "OH⁻", answer: "OH(-1)", name: "hidroksiedioon" },
             { display: "NO₃⁻", answer: "NO3(-1)", name: "nitraatioon" },
@@ -499,9 +1308,10 @@
             { display: "CH₃COOH", answer: "CH3COOH", name: "asynsuur" },
         ];
 
-        // ============================================================
+        // ================================================================
         //   DOM REFS
-        // ============================================================
+        // ================================================================
+
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const qText = document.getElementById('qText');
@@ -521,12 +1331,15 @@
         const finalBlocks = document.getElementById('finalBlocks');
         const finalStreak = document.getElementById('finalStreak');
         const finalBestHeight = document.getElementById('finalBestHeight');
+        const finalTotalCorrect = document.getElementById('finalTotalCorrect');
+        const finalTotalWrong = document.getElementById('finalTotalWrong');
         const gameOverTitle = document.getElementById('gameOverTitle');
         const gameOverSub = document.getElementById('gameOverSub');
 
-        // ============================================================
+        // ================================================================
         //   GAME STATE
-        // ============================================================
+        // ================================================================
+
         const BLOCK_W = 72;
         const BLOCK_H = 32;
         const GROUND_Y = 430;
@@ -557,10 +1370,8 @@
 
         let cameraOffset = 0;
 
-        // Best height (persisted)
         let bestHeight = START_BLOCKS;
 
-        // Lava mode
         let isLavaMode = false;
         let lavaLevel = GROUND_Y;
         let lavaSpeed = 0.05;
@@ -568,22 +1379,20 @@
         let lavaBubbles = [];
         let lavaWarningActive = false;
 
-        // Heart loss animation
         let heartLossIndex = -1;
         let heartLossTimer = 0;
         const HEART_LOSS_DURATION = 40;
 
-        // Heart particles
         let heartParticles = [];
 
-        // Stars
         let stars = [];
         let flyingObjects = [];
         let spawnTimer = 0;
 
-        // ============================================================
-        //   BEST HEIGHT (localStorage)
-        // ============================================================
+        // ================================================================
+        //   BEST HEIGHT
+        // ================================================================
+
         function loadBestHeight() {
             try {
                 const val = localStorage.getItem('chemStackBestHeight');
@@ -609,13 +1418,30 @@
             if (current > bestHeight) {
                 bestHeight = current;
                 saveBestHeight();
+                if (userSystem.currentUser) {
+                    const stats = userSystem.getUserStats();
+                    if (stats && current > (stats.bestHeight || 0)) {
+                        stats.bestHeight = current;
+                        userSystem.updateUserStats(stats);
+                        updateUserUI();
+                    }
+                }
             }
             bestHeightDisplay.textContent = bestHeight;
         }
 
-        // ============================================================
+        window.updateBestHeightFromUser = function(height) {
+            if (height > bestHeight) {
+                bestHeight = height;
+                saveBestHeight();
+                bestHeightDisplay.textContent = bestHeight;
+            }
+        };
+
+        // ================================================================
         //   INIT
-        // ============================================================
+        // ================================================================
+
         function initGame(resetLava = true) {
             const colors = getColorPalette();
             stack = [];
@@ -645,6 +1471,15 @@
 
             loadBestHeight();
 
+            if (userSystem.currentUser) {
+                const stats = userSystem.getUserStats();
+                if (stats && stats.bestHeight > bestHeight) {
+                    bestHeight = stats.bestHeight;
+                    saveBestHeight();
+                }
+                recordGamePlayed();
+            }
+
             if (resetLava) {
                 lavaLevel = GROUND_Y;
                 lavaTime = 0;
@@ -652,7 +1487,6 @@
                 lavaSpeed = 0.05;
             }
 
-            // Generate stars
             stars = [];
             for (let i = 0; i < 200; i++) {
                 stars.push({
@@ -686,9 +1520,10 @@
             ];
         }
 
-        // ============================================================
+        // ================================================================
         //   VRAAG GENERERING
-        // ============================================================
+        // ================================================================
+
         function generateQuestion() {
             const idx = Math.floor(Math.random() * CHEM_BANK.length);
             const item = CHEM_BANK[idx];
@@ -725,9 +1560,10 @@
                 `💡 Tik jou antwoord... ${heartMsg}`;
         }
 
-        // ============================================================
+        // ================================================================
         //   STATS UPDATE
-        // ============================================================
+        // ================================================================
+
         function updateStats() {
             scoreDisplay.textContent = score;
             streakDisplay.textContent = streak;
@@ -742,11 +1578,22 @@
             } else {
                 lavaStatus.style.display = 'none';
             }
+
+            if (userSystem.currentUser) {
+                const stats = userSystem.getUserStats();
+                if (stats) {
+                    document.getElementById('userTotalCorrect').textContent = stats.totalCorrect || 0;
+                    document.getElementById('userBestStreak').textContent = stats.bestStreak || 0;
+                    document.getElementById('userTotalBlocks').textContent = stats.totalBlocksStacked || 0;
+                    document.getElementById('userGamesPlayed').textContent = stats.gamesPlayed || 0;
+                }
+            }
         }
 
-        // ============================================================
-        //   HEART LOSS – trigger animation + particles
-        // ============================================================
+        // ================================================================
+        //   HEART LOSS
+        // ================================================================
+
         function triggerHeartLoss(lostIndex, x, y) {
             heartLossIndex = lostIndex;
             heartLossTimer = HEART_LOSS_DURATION;
@@ -769,9 +1616,10 @@
             }
         }
 
-        // ============================================================
+        // ================================================================
         //   ANTWOORD HANTEER
-        // ============================================================
+        // ================================================================
+
         function handleAnswer() {
             if (isGameOver || isAnswering) return;
             const raw = answerInput.value.trim();
@@ -787,7 +1635,6 @@
             const ok = (userAns === correct);
 
             if (ok) {
-                // CORRECT
                 score++;
                 streak++;
                 if (streak > bestStreak) bestStreak = streak;
@@ -801,6 +1648,23 @@
                 bounceAnim = 0;
                 charScale = 1.15;
                 updateStats();
+
+                if (userSystem.currentUser) {
+                    const stats = userSystem.getUserStats();
+                    if (stats) {
+                        stats.totalCorrect = (stats.totalCorrect || 0) + 1;
+                        stats.totalBlocksStacked = (stats.totalBlocksStacked || 0) + 1;
+                        if (streak > (stats.bestStreak || 0)) {
+                            stats.bestStreak = streak;
+                        }
+                        if (stack.length > (stats.bestHeight || 0)) {
+                            stats.bestHeight = stack.length;
+                        }
+                        userSystem.updateUserStats(stats);
+                        updateUserUI();
+                    }
+                }
+
                 answerInput.disabled = true;
 
                 if (isLavaMode) {
@@ -818,9 +1682,11 @@
                 }, 400);
 
             } else {
-                // WRONG
+                if (userSystem.currentUser) {
+                    recordUserWrong();
+                }
+
                 if (isLavaMode) {
-                    // Lava mode: no heart loss, just don't move up, reset streak, continue
                     streak = 0;
                     feedbackMsg.className = 'feedback-msg heart-loss';
                     feedbackMsg.textContent = `❌ Foutief! Regte antwoord: ${currentCorrect} • Geen blokkie • ❤️ × ${lives}`;
@@ -835,8 +1701,6 @@
                         draw();
                     }, 700);
                 } else {
-                    // Normal mode: lose a heart
-                    const oldLives = lives;
                     lives--;
 
                     if (lives >= 0) {
@@ -867,6 +1731,16 @@
                                 finalBlocks.textContent = stack.length;
                                 finalStreak.textContent = bestStreak;
                                 finalBestHeight.textContent = bestHeight;
+
+                                if (userSystem.currentUser) {
+                                    const stats = userSystem.getUserStats();
+                                    finalTotalCorrect.textContent = stats?.totalCorrect || 0;
+                                    finalTotalWrong.textContent = stats?.totalWrong || 0;
+                                } else {
+                                    finalTotalCorrect.textContent = '—';
+                                    finalTotalWrong.textContent = '—';
+                                }
+
                                 gameOverTitle.textContent = isLavaMode ? '🌋 Verbrand!' : '💔 Geen harte!';
                                 gameOverSub.textContent = isLavaMode ? 'Die lawa het jou gekry!' :
                                     'Jy het al jou harte verloor!';
@@ -891,9 +1765,10 @@
             draw();
         }
 
-        // ============================================================
+        // ================================================================
         //   CAMERA
-        // ============================================================
+        // ================================================================
+
         function getStackTopY() {
             return GROUND_Y - stack.length * BLOCK_H;
         }
@@ -908,9 +1783,10 @@
             }
         }
 
-        // ============================================================
+        // ================================================================
         //   LAVA LOGIC
-        // ============================================================
+        // ================================================================
+
         function updateLava() {
             if (!isLavaMode || isGameOver) return;
 
@@ -925,7 +1801,6 @@
             const charFeetY = getStackTopY();
             if (lavaLevel <= charFeetY + 4) {
                 if (lives > 0) {
-                    const oldLives = lives;
                     lives--;
                     lavaLevel = Math.min(GROUND_Y, lavaLevel + BLOCK_H * 3);
                     streak = 0;
@@ -953,6 +1828,16 @@
                             finalBlocks.textContent = stack.length;
                             finalStreak.textContent = bestStreak;
                             finalBestHeight.textContent = bestHeight;
+
+                            if (userSystem.currentUser) {
+                                const stats = userSystem.getUserStats();
+                                finalTotalCorrect.textContent = stats?.totalCorrect || 0;
+                                finalTotalWrong.textContent = stats?.totalWrong || 0;
+                            } else {
+                                finalTotalCorrect.textContent = '—';
+                                finalTotalWrong.textContent = '—';
+                            }
+
                             gameOverTitle.textContent = '🌋 Verbrand!';
                             gameOverSub.textContent = 'Die lawa het jou ingehaal!';
                             gameOverOverlay.classList.add('show');
@@ -977,6 +1862,16 @@
                         finalBlocks.textContent = stack.length;
                         finalStreak.textContent = bestStreak;
                         finalBestHeight.textContent = bestHeight;
+
+                        if (userSystem.currentUser) {
+                            const stats = userSystem.getUserStats();
+                            finalTotalCorrect.textContent = stats?.totalCorrect || 0;
+                            finalTotalWrong.textContent = stats?.totalWrong || 0;
+                        } else {
+                            finalTotalCorrect.textContent = '—';
+                            finalTotalWrong.textContent = '—';
+                        }
+
                         gameOverTitle.textContent = '🌋 Verbrand!';
                         gameOverSub.textContent = 'Die lawa het jou ingehaal!';
                         gameOverOverlay.classList.add('show');
@@ -985,7 +1880,6 @@
                 }
             }
 
-            // Spawn bubbles
             if (Math.random() < 0.04) {
                 const screenLavaY2 = lavaLevel - cameraOffset;
                 if (screenLavaY2 < 480 && screenLavaY2 > -50) {
@@ -1027,9 +1921,10 @@
             updateStats();
         }
 
-        // ============================================================
+        // ================================================================
         //   FLYING OBJECTS
-        // ============================================================
+        // ================================================================
+
         function spawnFlyingObject() {
             const lvl = stack.length;
             if (lvl < 14) return;
@@ -1211,16 +2106,16 @@
             }
         }
 
-        // ============================================================
-        //   DRAW HEARTS – with proper animation
-        // ============================================================
+        // ================================================================
+        //   DRAW HEARTS
+        // ================================================================
+
         function drawHearts(ctx, W, H) {
             const heartSize = 22;
             const spacing = 28;
             const startX = W - 16;
             const startY = 22;
 
-            // Update heart particles
             for (let i = heartParticles.length - 1; i >= 0; i--) {
                 const p = heartParticles[i];
                 p.x += p.vx;
@@ -1232,7 +2127,6 @@
                 }
             }
 
-            // Draw particles
             for (const p of heartParticles) {
                 const alpha = p.life / p.maxLife;
                 ctx.globalAlpha = alpha;
@@ -1286,7 +2180,6 @@
                     ctx.fill();
                 }
 
-                // Heart shape
                 ctx.beginPath();
                 ctx.moveTo(0, 6);
                 ctx.bezierCurveTo(-8, -2, -14, -8, -14, -14);
@@ -1351,9 +2244,10 @@
             }
         }
 
-        // ============================================================
+        // ================================================================
         //   RENDER (CANVAS)
-        // ============================================================
+        // ================================================================
+
         function draw() {
             const W = canvas.width;
             const H = canvas.height;
@@ -1377,7 +2271,6 @@
             drawEffects(ctx, W, H);
             drawHearts(ctx, W, H);
 
-            // UI op canvas
             const lvl = stack.length;
             ctx.fillStyle = 'rgba(255,255,255,0.6)';
             ctx.font = 'bold 14px "Segoe UI",sans-serif';
@@ -1994,9 +2887,10 @@
             } : { r: 100, g: 100, b: 100 };
         }
 
-        // ============================================================
+        // ================================================================
         //   GAME LOOP
-        // ============================================================
+        // ================================================================
+
         let animFrame = null;
 
         function gameLoop() {
@@ -2004,9 +2898,10 @@
             animFrame = requestAnimationFrame(gameLoop);
         }
 
-        // ============================================================
+        // ================================================================
         //   LAVA MODE TOGGLE
-        // ============================================================
+        // ================================================================
+
         function toggleLavaMode() {
             isLavaMode = !isLavaMode;
 
@@ -2038,9 +2933,10 @@
             answerInput.focus();
         }
 
-        // ============================================================
+        // ================================================================
         //   RESTART / QUIT
-        // ============================================================
+        // ================================================================
+
         function restartGame() {
             if (animFrame) cancelAnimationFrame(animFrame);
             loadBestHeight();
@@ -2075,9 +2971,10 @@
         window.restartGame = restartGame;
         window.quitGame = quitGame;
 
-        // ============================================================
+        // ================================================================
         //   EVENT LISTENERS
-        // ============================================================
+        // ================================================================
+
         submitBtn.addEventListener('click', handleAnswer);
         lavaBtn.addEventListener('click', toggleLavaMode);
 
@@ -2094,16 +2991,49 @@
             if (!isGameOver) answerInput.focus();
         });
 
-        // ============================================================
+        // ================================================================
         //   START
-        // ============================================================
+        // ================================================================
+
+        function checkSession() {
+            const savedUser = sessionStorage.getItem('chemieUser');
+            if (savedUser && userSystem.users[savedUser]) {
+                userSystem.currentUser = savedUser;
+                updateUserUI();
+                loadUserStatsIntoGame();
+                setTimeout(() => {
+                    if (typeof restartGame === 'function') {
+                        restartGame();
+                    }
+                }, 100);
+                return true;
+            }
+            return false;
+        }
+
         loadBestHeight();
         initGame(true);
         gameLoop();
         answerInput.focus();
 
+        setTimeout(() => {
+            checkSession();
+        }, 200);
+
         console.log('🧱 Blok Stapel Chemie • ❤️ 3 harte met animasie!');
-        console.log('🏔️ Beste hoogte word onthou.');
+        console.log('👤 Gebruiker stelsel is aktief!');
+
+        window.userSystem = userSystem;
+
+        function listUsers() {
+            console.table(Object.keys(userSystem.users).map(username => ({
+                username: username,
+                created: userSystem.users[username].created,
+                lastLogin: userSystem.users[username].lastLogin,
+                stats: userSystem.users[username].stats,
+            })));
+        }
+        window.listUsers = listUsers;
     </script>
 
 </body>
