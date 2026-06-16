@@ -5,81 +5,106 @@
 <title>Chemie Toets</title>
 
 <style>
-    body {
-        font-family: Arial, sans-serif;
-        background: #0f172a;
-        color: white;
-        margin: 0;
-        display: flex;
-        justify-content: center;
-    }
+body {
+    font-family: Arial, sans-serif;
+    background: #0f172a;
+    color: white;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+}
 
-    .container {
-        width: 95%;
-        max-width: 700px;
-        margin-top: 30px;
-        background: #111827;
-        padding: 20px;
-        border-radius: 12px;
-    }
+.container {
+    width: 95%;
+    max-width: 700px;
+    margin-top: 30px;
+    background: #111827;
+    padding: 20px;
+    border-radius: 12px;
+}
 
-    h1 { text-align: center; }
+h1 { text-align: center; }
 
-    input, select {
-        width: 100%;
-        padding: 10px;
-        margin: 10px 0;
-        border-radius: 8px;
-        border: none;
-        font-size: 16px;
-    }
+label {
+    display:block;
+    margin-top:10px;
+    color:#93c5fd;
+}
 
-    button {
-        padding: 10px;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        font-weight: bold;
-        margin-top: 10px;
-    }
+input, select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+}
 
-    .start { background: #3b82f6; color: white; width: 100%; }
+button {
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+}
 
-    .progress {
-        height: 10px;
-        background: #1f2937;
-        border-radius: 5px;
-        margin-bottom: 10px;
-    }
+.start {
+    background:#3b82f6;
+    color:white;
+    width:100%;
+    margin-top:15px;
+}
 
-    .bar {
-        height: 10px;
-        background: #22c55e;
-        width: 0%;
-        border-radius: 5px;
-    }
+.progress {
+    height: 10px;
+    background:#1f2937;
+    border-radius:5px;
+}
 
-    .qnum { color: #93c5fd; margin-bottom: 10px; }
+.bar {
+    height:10px;
+    background:#22c55e;
+    width:0%;
+}
 
-    .question { font-size: 20px; margin: 20px 0; }
+.qnum { color:#93c5fd; }
 
-    .options button {
-        width: 100%;
-        padding: 10px;
-        margin: 5px 0;
-        border: none;
-        border-radius: 8px;
-        background: #374151;
-        color: white;
-    }
+.question {
+    font-size:20px;
+    margin:20px 0 5px 0;
+}
 
-    .options button:hover {
-        background: #4b5563;
-    }
+.hint {
+    color:#93c5fd;
+    font-size:14px;
+    margin-bottom:10px;
+}
 
-    .result { margin-top: 10px; font-size: 18px; }
+.options button {
+    width:100%;
+    margin:5px 0;
+    background:#374151;
+    color:white;
+}
 
-    .hidden { display: none; }
+.hidden { display:none; }
+
+.exit {
+    background:#ef4444;
+    color:white;
+    width:100%;
+    margin-top:15px;
+}
+
+.review-box {
+    margin-top:15px;
+    max-height:300px;
+    overflow-y:auto;
+    background:#0b1220;
+    padding:10px;
+    border-radius:10px;
+}
+
+.correct { color:#22c55e; }
+.wrong { color:#ef4444; }
 </style>
 </head>
 
@@ -87,14 +112,14 @@
 
 <div class="container">
 
-<!-- START -->
-<div id="startScreen">
+<!-- MENU -->
+<div id="menu">
     <h1>⚗️ Chemie Toets</h1>
 
-    <label>Aantal vrae (5 - 50):</label>
+    <label>Totale vrae:</label>
     <input type="number" id="amount" min="5" max="50" value="10">
 
-    <label>Toets tipe:</label>
+    <label>Antwoord tipe:</label>
     <select id="mode">
         <option value="typed">✍️ Tik-antwoord</option>
         <option value="mcq">🔘 Veelkeuse</option>
@@ -110,12 +135,25 @@
     <div class="qnum" id="qnum"></div>
 
     <div class="question" id="question"></div>
+    <div class="hint" id="hint"></div>
 
-    <input id="answerBox" class="hidden" placeholder="Tik jou antwoord...">
+    <input id="answerBox" class="hidden" placeholder="Tik antwoord...">
 
     <div class="options" id="options"></div>
 
-    <div class="result" id="result"></div>
+    <button class="exit" onclick="exitQuiz()">🚪 Exit</button>
+</div>
+
+<!-- RESULT -->
+<div id="resultScreen" class="hidden">
+    <h2>🎉 Toets voltooi!</h2>
+
+    <div id="finalScore"></div>
+
+    <button class="start" onclick="review()">📋 Review Antwoorde</button>
+    <button class="exit" onclick="exitQuiz()">🏠 Terug na Menu</button>
+
+    <div class="review-box" id="reviewBox"></div>
 </div>
 
 </div>
@@ -140,130 +178,181 @@ let index = 0;
 let score = 0;
 let answers = [];
 let mode = "typed";
+let locked = false;
 
 function shuffle(arr){
     return arr.sort(() => Math.random() - 0.5);
 }
 
+function getQuestion(item){
+    let askFormula = Math.random() < 0.5;
+
+    if(askFormula){
+        return { prompt:item.q, answer:item.a, type:"formula" };
+    } else {
+        return { prompt:item.a, answer:item.q, type:"name" };
+    }
+}
+
+/* ---------------- START ---------------- */
 function startQuiz(){
     let amount = parseInt(document.getElementById("amount").value);
     mode = document.getElementById("mode").value;
 
     if(amount < 5) amount = 5;
     if(amount > 50) amount = 50;
-    if(amount > data.length) amount = data.length;
 
-    quizData = shuffle([...data]).slice(0, amount);
+    // ✅ FIXED: Now supports any number of questions up to 50
+    // It recycles the question bank if more questions are requested
+    let shuffledData = shuffle([...data]);
+    quizData = [];
+    
+    while (quizData.length < amount) {
+        // If we have enough remaining items in shuffledData, take from there
+        if (quizData.length + shuffledData.length <= amount) {
+            quizData.push(...shuffledData);
+            // Reshuffle the data for the next batch
+            shuffledData = shuffle([...data]);
+        } else {
+            // Take only what we need to reach the amount
+            let needed = amount - quizData.length;
+            quizData.push(...shuffledData.slice(0, needed));
+        }
+    }
 
-    document.getElementById("startScreen").classList.add("hidden");
+    index = 0;
+    score = 0;
+    answers = [];
+
+    document.getElementById("menu").classList.add("hidden");
+    document.getElementById("resultScreen").classList.add("hidden");
     document.getElementById("quiz").classList.remove("hidden");
 
     show();
 }
 
-function makeOptions(correct){
-    let options = new Set();
-    options.add(correct);
+/* ---------------- MCQ OPTIONS ---------------- */
+function makeOptions(correct, type){
+    let opts = new Set([correct]);
 
-    while(options.size < 4){
-        options.add(data[Math.floor(Math.random() * data.length)].a);
+    while(opts.size < 4){
+        let rand = (type === "formula")
+            ? data[Math.floor(Math.random()*data.length)].a
+            : data[Math.floor(Math.random()*data.length)].q;
+
+        opts.add(rand);
     }
 
-    return shuffle([...options]);
+    return [...opts].sort(() => Math.random() - 0.5);
 }
 
 function show(){
-    document.getElementById("result").innerHTML = "";
-    document.getElementById("answerBox").value = "";
+    locked = false;
 
-    let q = quizData[index];
+    let item = getQuestion(quizData[index]);
+    quizData[index] = item;
 
-    document.getElementById("question").innerText = q.q;
+    document.getElementById("question").innerText = item.prompt;
+
     document.getElementById("qnum").innerText =
         `Vraag ${index+1} van ${quizData.length}`;
 
     document.getElementById("bar").style.width =
         (index / quizData.length) * 100 + "%";
 
-    // MODE SWITCH
+    document.getElementById("answerBox").value = "";
+
     if(mode === "typed"){
         document.getElementById("answerBox").classList.remove("hidden");
         document.getElementById("options").innerHTML = "";
-    } 
-    else {
+    } else {
         document.getElementById("answerBox").classList.add("hidden");
 
-        let opts = makeOptions(q.a);
+        let opts = makeOptions(item.answer, item.type);
 
-        let html = "";
-        opts.forEach(o => {
-            html += `<button onclick="check('${o}')">${o}</button>`;
-        });
-
-        document.getElementById("options").innerHTML = html;
+        document.getElementById("options").innerHTML =
+            opts.map(o =>
+                `<button onclick="checkMCQ('${o}')">${o}</button>`
+            ).join("");
     }
 }
 
-function check(answer){
-    let correct = quizData[index].a;
+function checkMCQ(answer){
+    if(locked) return;
+    locked = true;
 
-    let ok = answer === correct;
-
-    if(ok){
-        score++;
-        document.getElementById("result").innerHTML = "✔ Reg!";
-    } else {
-        document.getElementById("result").innerHTML =
-            `✖ Verkeerd! Regte antwoord: ${correct}`;
-    }
-
+    save(answer);
     next();
 }
 
 function checkTyped(){
-    let user = document.getElementById("answerBox").value.toLowerCase().trim();
-    let correct = quizData[index].a.toLowerCase();
+    if(locked) return;
+    locked = true;
 
-    let ok = user === correct;
-
-    if(ok){
-        score++;
-        document.getElementById("result").innerHTML = "✔ Reg!";
-    } else {
-        document.getElementById("result").innerHTML =
-            `✖ Verkeerd! Regte antwoord: ${quizData[index].a}`;
-    }
-
+    let user = document.getElementById("answerBox").value;
+    save(user);
     next();
 }
 
-document.addEventListener("keydown", function(e){
-    if(e.key === "Enter" && mode === "typed"){
-        checkTyped();
-    }
+document.addEventListener("keydown", e=>{
+    if(e.key === "Enter" && mode === "typed") checkTyped();
 });
+
+function save(user){
+    let correct = quizData[index].answer;
+
+    let ok = user.toLowerCase().trim() === correct.toLowerCase();
+
+    if(ok) score++;
+
+    answers.push({
+        q: quizData[index].prompt,
+        user,
+        correct,
+        ok
+    });
+}
 
 function next(){
     index++;
-
-    if(index >= quizData.length){
-        finish();
-        return;
-    }
-
-    setTimeout(show, 800);
+    if(index >= quizData.length) return finish();
+    setTimeout(show, 400);
 }
 
 function finish(){
-    document.getElementById("bar").style.width = "100%";
-    document.getElementById("question").innerHTML = "🎉 Toets Voltooi!";
-    document.getElementById("options").innerHTML = "";
-    document.getElementById("answerBox").classList.add("hidden");
+    document.getElementById("quiz").classList.add("hidden");
+    document.getElementById("resultScreen").classList.remove("hidden");
 
     let percent = Math.round((score/quizData.length)*100);
 
-    document.getElementById("result").innerHTML =
+    document.getElementById("finalScore").innerHTML =
         `Punt: ${score}/${quizData.length} (${percent}%)`;
+}
+
+function review(){
+    let html = "<h3>📋 Review</h3>";
+
+    answers.forEach((a,i)=>{
+        html += `
+        <div>
+            <b>${i+1}. ${a.q}</b><br>
+            Jou antwoord: <span class="${a.ok?'correct':'wrong'}">${a.user}</span><br>
+            Regte antwoord: <span class="correct">${a.correct}</span>
+            <hr>
+        </div>`;
+    });
+
+    document.getElementById("reviewBox").innerHTML = html;
+}
+
+function exitQuiz(){
+    document.getElementById("quiz").classList.add("hidden");
+    document.getElementById("resultScreen").classList.add("hidden");
+    document.getElementById("menu").classList.remove("hidden");
+
+    index = 0;
+    score = 0;
+    answers = [];
 }
 
 </script>
