@@ -25,6 +25,26 @@
 
     h1 { text-align: center; }
 
+    input, select {
+        width: 100%;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 8px;
+        border: none;
+        font-size: 16px;
+    }
+
+    button {
+        padding: 10px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+        margin-top: 10px;
+    }
+
+    .start { background: #3b82f6; color: white; width: 100%; }
+
     .progress {
         height: 10px;
         background: #1f2937;
@@ -49,42 +69,17 @@
         margin: 5px 0;
         border: none;
         border-radius: 8px;
-        cursor: pointer;
         background: #374151;
         color: white;
-        font-size: 16px;
     }
 
     .options button:hover {
         background: #4b5563;
     }
 
-    .correct { background: #22c55e !important; }
-    .wrong { background: #ef4444 !important; }
-
     .result { margin-top: 10px; font-size: 18px; }
 
     .hidden { display: none; }
-
-    input {
-        width: 100%;
-        padding: 10px;
-        font-size: 16px;
-        border-radius: 8px;
-        border: none;
-        margin: 10px 0;
-    }
-
-    button.start {
-        width: 100%;
-        padding: 10px;
-        border: none;
-        border-radius: 8px;
-        background: #3b82f6;
-        color: white;
-        font-weight: bold;
-        cursor: pointer;
-    }
 </style>
 </head>
 
@@ -92,27 +87,36 @@
 
 <div class="container">
 
-    <!-- START SKERM -->
-    <div id="startScreen">
-        <h1>⚗️ Chemie Toets</h1>
-        <p>Hoeveel vrae wil jy hê? (5 - 50)</p>
-        <input type="number" id="amount" min="5" max="50" value="10">
-        <button class="start" onclick="startQuiz()">Begin Toets</button>
-    </div>
+<!-- START -->
+<div id="startScreen">
+    <h1>⚗️ Chemie Toets</h1>
 
-    <!-- QUIZ -->
-    <div id="quiz" class="hidden">
+    <label>Aantal vrae (5 - 50):</label>
+    <input type="number" id="amount" min="5" max="50" value="10">
 
-        <div class="progress"><div class="bar" id="bar"></div></div>
-        <div class="qnum" id="qnum"></div>
+    <label>Toets tipe:</label>
+    <select id="mode">
+        <option value="typed">✍️ Tik-antwoord</option>
+        <option value="mcq">🔘 Veelkeuse</option>
+    </select>
 
-        <div class="question" id="question"></div>
+    <button class="start" onclick="startQuiz()">Begin Toets</button>
+</div>
 
-        <div class="options" id="options"></div>
+<!-- QUIZ -->
+<div id="quiz" class="hidden">
 
-        <div class="result" id="result"></div>
-        <div id="review"></div>
-    </div>
+    <div class="progress"><div class="bar" id="bar"></div></div>
+    <div class="qnum" id="qnum"></div>
+
+    <div class="question" id="question"></div>
+
+    <input id="answerBox" class="hidden" placeholder="Tik jou antwoord...">
+
+    <div class="options" id="options"></div>
+
+    <div class="result" id="result"></div>
+</div>
 
 </div>
 
@@ -135,6 +139,7 @@ let quizData = [];
 let index = 0;
 let score = 0;
 let answers = [];
+let mode = "typed";
 
 function shuffle(arr){
     return arr.sort(() => Math.random() - 0.5);
@@ -142,6 +147,7 @@ function shuffle(arr){
 
 function startQuiz(){
     let amount = parseInt(document.getElementById("amount").value);
+    mode = document.getElementById("mode").value;
 
     if(amount < 5) amount = 5;
     if(amount > 50) amount = 50;
@@ -160,8 +166,7 @@ function makeOptions(correct){
     options.add(correct);
 
     while(options.size < 4){
-        let rand = data[Math.floor(Math.random() * data.length)].a;
-        options.add(rand);
+        options.add(data[Math.floor(Math.random() * data.length)].a);
     }
 
     return shuffle([...options]);
@@ -169,6 +174,7 @@ function makeOptions(correct){
 
 function show(){
     document.getElementById("result").innerHTML = "";
+    document.getElementById("answerBox").value = "";
 
     let q = quizData[index];
 
@@ -179,14 +185,23 @@ function show(){
     document.getElementById("bar").style.width =
         (index / quizData.length) * 100 + "%";
 
-    let opts = makeOptions(q.a);
+    // MODE SWITCH
+    if(mode === "typed"){
+        document.getElementById("answerBox").classList.remove("hidden");
+        document.getElementById("options").innerHTML = "";
+    } 
+    else {
+        document.getElementById("answerBox").classList.add("hidden");
 
-    let html = "";
-    opts.forEach(o => {
-        html += `<button onclick="check('${o}')">${o}</button>`;
-    });
+        let opts = makeOptions(q.a);
 
-    document.getElementById("options").innerHTML = html;
+        let html = "";
+        opts.forEach(o => {
+            html += `<button onclick="check('${o}')">${o}</button>`;
+        });
+
+        document.getElementById("options").innerHTML = html;
+    }
 }
 
 function check(answer){
@@ -195,22 +210,38 @@ function check(answer){
     let ok = answer === correct;
 
     if(ok){
-        document.getElementById("result").innerHTML = "✔ Reg!";
         score++;
+        document.getElementById("result").innerHTML = "✔ Reg!";
     } else {
         document.getElementById("result").innerHTML =
             `✖ Verkeerd! Regte antwoord: ${correct}`;
     }
 
-    answers.push({
-        q: quizData[index].q,
-        user: answer,
-        correct: correct,
-        ok: ok
-    });
-
-    setTimeout(next, 1000);
+    next();
 }
+
+function checkTyped(){
+    let user = document.getElementById("answerBox").value.toLowerCase().trim();
+    let correct = quizData[index].a.toLowerCase();
+
+    let ok = user === correct;
+
+    if(ok){
+        score++;
+        document.getElementById("result").innerHTML = "✔ Reg!";
+    } else {
+        document.getElementById("result").innerHTML =
+            `✖ Verkeerd! Regte antwoord: ${quizData[index].a}`;
+    }
+
+    next();
+}
+
+document.addEventListener("keydown", function(e){
+    if(e.key === "Enter" && mode === "typed"){
+        checkTyped();
+    }
+});
 
 function next(){
     index++;
@@ -220,13 +251,14 @@ function next(){
         return;
     }
 
-    show();
+    setTimeout(show, 800);
 }
 
 function finish(){
     document.getElementById("bar").style.width = "100%";
     document.getElementById("question").innerHTML = "🎉 Toets Voltooi!";
     document.getElementById("options").innerHTML = "";
+    document.getElementById("answerBox").classList.add("hidden");
 
     let percent = Math.round((score/quizData.length)*100);
 
@@ -238,4 +270,3 @@ function finish(){
 
 </body>
 </html>
-
