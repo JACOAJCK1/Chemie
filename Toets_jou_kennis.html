@@ -175,6 +175,7 @@
             color: white;
             font-size: 1.1rem;
             margin: 12px 0 8px 0;
+            width: 100%;
         }
         #answerBox::placeholder {
             color: #4b5a77;
@@ -280,6 +281,16 @@
             background: #334155;
             border-radius: 12px;
         }
+
+        /* debug */
+        .debug {
+            color: #fbbf24;
+            font-size: 0.8rem;
+            margin-top: 10px;
+            background: #1e293b;
+            padding: 6px 12px;
+            border-radius: 8px;
+        }
     </style>
 </head>
 <body>
@@ -299,11 +310,12 @@
                 <option value="mcq">🔘 Veelkeuse (4 opsies)</option>
             </select>
 
-            <button class="btn btn-primary" onclick="startQuiz()">🚀 Begin toets</button>
+            <button class="btn btn-primary" id="startBtn">🚀 Begin toets</button>
         </div>
         <div style="margin-top: 12px; font-size: 0.8rem; color: #475569; text-align: center; border-top: 1px solid #1e293b; padding-top: 14px;">
             ⚡ willekeurig · geen herhaling binne toets
         </div>
+        <div id="debugInfo" class="debug hidden"></div>
     </div>
 
     <!-- ===== QUIZ ===== -->
@@ -341,385 +353,416 @@
 </div>
 
 <script>
-    // ============================
-    //   GROOT VOLLEDIGE DATABANK
-    // ============================
-    const FULL_BANK = [
-        // --- Anione (poliatomies) ---
-        { q: "OH⁻", a: "hidroksied" },
-        { q: "NO₃⁻", a: "nitraation" },
-        { q: "NO₂⁻", a: "nitrietioon" },
-        { q: "MnO₄⁻", a: "permanganaation" },
-        { q: "ClO₃⁻", a: "chloraation" },
-        { q: "CH₃COO⁻", a: "asetaation" },
-        { q: "HCO₃⁻", a: "waterstofkarbonaat" },
-        { q: "HSO₄⁻", a: "waterstofsulfaatioon" },
-        { q: "SO₄²⁻", a: "sulfaatioon" },
-        { q: "MnO₄²⁻", a: "manganaation" },   // (let op: in tabel as MnO4²⁻)
-        { q: "SO₃²⁻", a: "sulfietioon" },
-        { q: "CO₃²⁻", a: "karbonaation" },
-        { q: "CrO₄²⁻", a: "chromaatioon" },
-        { q: "Cr₂O₇²⁻", a: "dichromaatioon" },
-        { q: "O₂²⁻", a: "peroksiedioon" },
-        { q: "PO₄³⁻", a: "fosfaation" },
-        // --- Katione ---
-        { q: "NH₄⁺", a: "ammoniumioon" },
-        { q: "H₃O⁺", a: "hidroniumioon" },
-        // --- Molekules (nie-metale) ---
-        { q: "H₂O", a: "water" },
-        { q: "NH₃", a: "ammoniak" },
-        { q: "HCl", a: "soutsuur" },
-        { q: "H₂SO₄", a: "swawelsuur" },
-        { q: "HNO₃", a: "salpetersuur" },
-        { q: "H₂CO₃", a: "koolsuur" },
-        { q: "CH₃COOH", a: "asynsuur" },
-        { q: "CO₂", a: "koolstofdioksied" },
-        { q: "P₂O₅", a: "difosforpentoksied" },
-        { q: "NO₂", a: "stikstofdioksied" },
-        { q: "N₂O₄", a: "distikstoftetraoksied" },
-        { q: "PCl₅", a: "fosforpentachloried" },
-        { q: "BF₃", a: "boor trifluoried" },
-        // ekstra (variante)
-        { q: "HSO₃⁻", a: "waterstofsulfietioon" },
-        { q: "Cl⁻", a: "chloriedioon" },     // (enkel, maar ons hou dit)
-        { q: "Na⁺", a: "natriumioon" },
-        { q: "Mg²⁺", a: "magnesiumioon" },
-        { q: "Al³⁺", a: "aluminiumioon" },
-        { q: "Ca²⁺", a: "kalsiumioon" },
-        { q: "K⁺", a: "kaliumioon" },
-    ];
+    (function() {
+        'use strict';
 
-    // ============================
-    //   STATE
-    // ============================
-    let quizQuestions = [];        // array van { q, a } (ruwe items)
-    let enriched = [];           // { prompt, answer, type, rawQ, rawA }
-    let currentIndex = 0;
-    let score = 0;
-    let userAnswers = [];        // { prompt, user, correct, correctAnswer }
-    let mode = 'typed';
-    let totalQuestions = 15;
-    let answered = false;        // voorkom dubbelklik
+        // ============================
+        //   GROOT VOLLEDIGE DATABANK
+        // ============================
+        const FULL_BANK = [
+            // --- Anione (poliatomies) ---
+            { q: "OH⁻", a: "hidroksied" },
+            { q: "NO₃⁻", a: "nitraation" },
+            { q: "NO₂⁻", a: "nitrietioon" },
+            { q: "MnO₄⁻", a: "permanganaation" },
+            { q: "ClO₃⁻", a: "chloraation" },
+            { q: "CH₃COO⁻", a: "asetaation" },
+            { q: "HCO₃⁻", a: "waterstofkarbonaat" },
+            { q: "HSO₄⁻", a: "waterstofsulfaatioon" },
+            { q: "SO₄²⁻", a: "sulfaatioon" },
+            { q: "MnO₄²⁻", a: "manganaation" },
+            { q: "SO₃²⁻", a: "sulfietioon" },
+            { q: "CO₃²⁻", a: "karbonaation" },
+            { q: "CrO₄²⁻", a: "chromaatioon" },
+            { q: "Cr₂O₇²⁻", a: "dichromaatioon" },
+            { q: "O₂²⁻", a: "peroksiedioon" },
+            { q: "PO₄³⁻", a: "fosfaation" },
+            // --- Katione ---
+            { q: "NH₄⁺", a: "ammoniumioon" },
+            { q: "H₃O⁺", a: "hidroniumioon" },
+            // --- Molekules (nie-metale) ---
+            { q: "H₂O", a: "water" },
+            { q: "NH₃", a: "ammoniak" },
+            { q: "HCl", a: "soutsuur" },
+            { q: "H₂SO₄", a: "swawelsuur" },
+            { q: "HNO₃", a: "salpetersuur" },
+            { q: "H₂CO₃", a: "koolsuur" },
+            { q: "CH₃COOH", a: "asynsuur" },
+            { q: "CO₂", a: "koolstofdioksied" },
+            { q: "P₂O₅", a: "difosforpentoksied" },
+            { q: "NO₂", a: "stikstofdioksied" },
+            { q: "N₂O₄", a: "distikstoftetraoksied" },
+            { q: "PCl₅", a: "fosforpentachloried" },
+            { q: "BF₃", a: "boor trifluoried" },
+            { q: "HSO₃⁻", a: "waterstofsulfietioon" },
+            { q: "Cl⁻", a: "chloriedioon" },
+            { q: "Na⁺", a: "natriumioon" },
+            { q: "Mg²⁺", a: "magnesiumioon" },
+            { q: "Al³⁺", a: "aluminiumioon" },
+            { q: "Ca²⁺", a: "kalsiumioon" },
+            { q: "K⁺", a: "kaliumioon" },
+        ];
 
-    // ============================
-    //   SHUFFLE
-    // ============================
-    function shuffleArray(arr) {
-        for (let i = arr.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [arr[i], arr[j]] = [arr[j], arr[i]];
-        }
-        return arr;
-    }
+        // ============================
+        //   STATE
+        // ============================
+        let quizQuestions = [];
+        let enriched = [];
+        let currentIndex = 0;
+        let score = 0;
+        let userAnswers = [];
+        let mode = 'typed';
+        let totalQuestions = 15;
+        let answered = false;
+        let quizActive = false;
 
-    // ============================
-    //   START QUIZ
-    // ============================
-    function startQuiz() {
-        // lees instellings
+        // DOM refs
+        const menuScreen = document.getElementById('menuScreen');
+        const quizScreen = document.getElementById('quizScreen');
+        const resultScreen = document.getElementById('resultScreen');
+        const startBtn = document.getElementById('startBtn');
         const amountInput = document.getElementById('amountInput');
-        let amt = parseInt(amountInput.value, 10);
-        if (isNaN(amt) || amt < 5) amt = 5;
-        if (amt > 50) amt = 50;
-        totalQuestions = amt;
-        amountInput.value = amt;
-
-        mode = document.getElementById('modeSelect').value;
-
-        // --- bou 'n random lys sonder herhaling (binne toets) ---
-        // 1) skud volledige bank
-        const shuffledBank = shuffleArray([...FULL_BANK]);
-
-        // 2) as ons meer vrae as bank, herhaal met nuwe skud (maar uniek per toets)
-        let pool = [];
-        while (pool.length < totalQuestions) {
-            // as ons nie genoeg het nie, skud weer en voeg by
-            if (pool.length + shuffledBank.length <= totalQuestions) {
-                pool.push(...shuffledBank);
-                // as ons nogsteeds nie genoeg het nie, skud 'n vars kopie
-                if (pool.length < totalQuestions) {
-                    const extra = shuffleArray([...FULL_BANK]);
-                    pool.push(...extra);
-                }
-            } else {
-                // neem net wat ons kort
-                const needed = totalQuestions - pool.length;
-                pool.push(...shuffledBank.slice(0, needed));
-            }
-        }
-
-        // kap tot presiese lengte (sou nie nodig wees nie, maar veilig)
-        quizQuestions = pool.slice(0, totalQuestions);
-
-        // --- verryk met vraag-tipe (formule → naam OF naam → formule) ---
-        enriched = quizQuestions.map(item => {
-            const askFormula = Math.random() < 0.5;
-            if (askFormula) {
-                return {
-                    prompt: item.q,
-                    answer: item.a,
-                    type: 'formula',
-                    rawQ: item.q,
-                    rawA: item.a
-                };
-            } else {
-                return {
-                    prompt: item.a,
-                    answer: item.q,
-                    type: 'name',
-                    rawQ: item.q,
-                    rawA: item.a
-                };
-            }
-        });
-
-        // reset state
-        currentIndex = 0;
-        score = 0;
-        userAnswers = [];
-        answered = false;
-
-        // skerms
-        document.getElementById('menuScreen').classList.add('hidden');
-        document.getElementById('resultScreen').classList.add('hidden');
-        document.getElementById('quizScreen').classList.remove('hidden');
-
-        // wys eerste vraag
-        renderQuestion();
-    }
-
-    // ============================
-    //   RENDER VRAAG
-    // ============================
-    function renderQuestion() {
-        if (currentIndex >= enriched.length) {
-            finishQuiz();
-            return;
-        }
-
-        answered = false;
-        const q = enriched[currentIndex];
-        const total = enriched.length;
-
-        // progress
-        document.getElementById('progressBar').style.width = ((currentIndex) / total * 100) + '%';
-        document.getElementById('qnumLabel').innerText = `Vraag ${currentIndex+1} / ${total}`;
-
-        // vraag teks
-        document.getElementById('questionText').innerText = q.prompt;
-
-        // hint (klein)
-        const hintEl = document.getElementById('hintText');
-        if (q.type === 'formula') {
-            hintEl.innerText = '📌 Skryf die naam van die verbinding / ioon';
-        } else {
-            hintEl.innerText = '📌 Skryf die formule (bv. H₂O)';
-        }
-
-        // opsies / antwoord blok
+        const modeSelect = document.getElementById('modeSelect');
+        const progressBar = document.getElementById('progressBar');
+        const qnumLabel = document.getElementById('qnumLabel');
+        const questionText = document.getElementById('questionText');
+        const hintText = document.getElementById('hintText');
+        const answerBox = document.getElementById('answerBox');
         const optionsContainer = document.getElementById('optionsContainer');
-        const answerBox = document.getElementById('answerBox');
-
-        if (mode === 'mcq') {
-            answerBox.classList.add('hidden');
-            optionsContainer.classList.remove('hidden');
-
-            // bou 4 opsies (een korrek + 3 distraksies)
-            const correctAns = q.answer;
-            let opts = new Set();
-            opts.add(correctAns);
-
-            // versamel moontlike distraksies (uit die volle bank, maar nie korrek nie)
-            const allPossible = FULL_BANK.map(item => item.a).concat(FULL_BANK.map(item => item.q));
-            const poolDist = allPossible.filter(x => x !== correctAns);
-
-            while (opts.size < 4) {
-                const rand = poolDist[Math.floor(Math.random() * poolDist.length)];
-                opts.add(rand);
-            }
-
-            const optArr = shuffleArray([...opts]);
-
-            optionsContainer.innerHTML = optArr.map(opt =>
-                `<button data-opt="${opt}" onclick="handleMCQ('${opt}')">${opt}</button>`
-            ).join('');
-
-            // verwyder vorige "next" klik
-            document.getElementById('nextBtn').classList.add('hidden');
-            document.getElementById('extraHint').innerText = 'Kies een opsie';
-
-        } else {
-            // typed
-            answerBox.classList.remove('hidden');
-            optionsContainer.classList.add('hidden');
-            answerBox.value = '';
-            answerBox.focus();
-            document.getElementById('nextBtn').classList.remove('hidden');
-            document.getElementById('extraHint').innerText = 'Druk Enter of klik "Volgende"';
-        }
-
-        // update volgende knoppie
         const nextBtn = document.getElementById('nextBtn');
-        nextBtn.innerText = (currentIndex === total - 1) ? '✅ Klaar' : 'Volgende →';
-    }
+        const extraHint = document.getElementById('extraHint');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const totalDisplay = document.getElementById('totalDisplay');
+        const reviewContainer = document.getElementById('reviewContainer');
+        const debugInfo = document.getElementById('debugInfo');
 
-    // ============================
-    //   MCQ HANDLE
-    // ============================
-    function handleMCQ(selected) {
-        if (answered) return;
-        answered = true;
-        const q = enriched[currentIndex];
-        const correct = q.answer;
-        const ok = (selected.toLowerCase().trim() === correct.toLowerCase().trim());
-
-        if (ok) score++;
-
-        userAnswers.push({
-            prompt: q.prompt,
-            user: selected,
-            correct: ok,
-            correctAnswer: correct
-        });
-
-        // wys visuele terugvoer
-        const btns = document.querySelectorAll('#optionsContainer button');
-        btns.forEach(btn => {
-            btn.style.opacity = '0.6';
-            if (btn.dataset.opt === correct) {
-                btn.style.border = '2px solid #4ade80';
-                btn.style.background = '#1e3a2a';
+        // ============================
+        //   SHUFFLE
+        // ============================
+        function shuffleArray(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
             }
-            if (btn.dataset.opt === selected && !ok) {
-                btn.style.border = '2px solid #f87171';
-                btn.style.background = '#3f1f1f';
+            return arr;
+        }
+
+        // ============================
+        //   START QUIZ
+        // ============================
+        function startQuiz() {
+            console.log("startQuiz() called");
+            
+            // lees instellings
+            let amt = parseInt(amountInput.value, 10);
+            if (isNaN(amt) || amt < 5) amt = 5;
+            if (amt > 50) amt = 50;
+            totalQuestions = amt;
+            amountInput.value = amt;
+
+            mode = modeSelect.value;
+            console.log("Mode:", mode, "Amount:", totalQuestions);
+
+            // --- bou 'n random lys sonder herhaling ---
+            const shuffledBank = shuffleArray([...FULL_BANK]);
+            let pool = [];
+            
+            while (pool.length < totalQuestions) {
+                if (pool.length + shuffledBank.length <= totalQuestions) {
+                    pool.push(...shuffledBank);
+                    if (pool.length < totalQuestions) {
+                        const extra = shuffleArray([...FULL_BANK]);
+                        pool.push(...extra);
+                    }
+                } else {
+                    const needed = totalQuestions - pool.length;
+                    pool.push(...shuffledBank.slice(0, needed));
+                }
             }
-        });
 
-        document.getElementById('extraHint').innerText = ok ? '✅ korrek!' : '❌ foutief';
+            quizQuestions = pool.slice(0, totalQuestions);
+            console.log("Quiz questions created:", quizQuestions.length);
 
-        // outomaties volgende na 0.8s
-        setTimeout(() => {
-            currentIndex++;
+            // --- verryk met vraag-tipe ---
+            enriched = quizQuestions.map(item => {
+                const askFormula = Math.random() < 0.5;
+                if (askFormula) {
+                    return {
+                        prompt: item.q,
+                        answer: item.a,
+                        type: 'formula',
+                        rawQ: item.q,
+                        rawA: item.a
+                    };
+                } else {
+                    return {
+                        prompt: item.a,
+                        answer: item.q,
+                        type: 'name',
+                        rawQ: item.q,
+                        rawA: item.a
+                    };
+                }
+            });
+
+            // reset state
+            currentIndex = 0;
+            score = 0;
+            userAnswers = [];
+            answered = false;
+            quizActive = true;
+
+            // skerms
+            menuScreen.classList.add('hidden');
+            resultScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            
+            console.log("Switched to quiz screen");
+            debugInfo.classList.add('hidden');
+
+            // wys eerste vraag
             renderQuestion();
-        }, 700);
-    }
-
-    // ============================
-    //   TYPED NEXT (handmatig of enter)
-    // ============================
-    function handleNext() {
-        if (answered) return;
-        if (mode === 'mcq') return; // nie gebruik vir mcq
-
-        const answerBox = document.getElementById('answerBox');
-        const userInput = answerBox.value.trim();
-        if (userInput === '') {
-            document.getElementById('extraHint').innerText = '⚠️ Tik eers 'n antwoord';
-            return;
         }
 
-        answered = true;
-        const q = enriched[currentIndex];
-        const correct = q.answer;
-        const ok = (userInput.toLowerCase() === correct.toLowerCase());
+        // ============================
+        //   RENDER VRAAG
+        // ============================
+        function renderQuestion() {
+            if (currentIndex >= enriched.length) {
+                finishQuiz();
+                return;
+            }
 
-        if (ok) score++;
+            answered = false;
+            const q = enriched[currentIndex];
+            const total = enriched.length;
 
-        userAnswers.push({
-            prompt: q.prompt,
-            user: userInput,
-            correct: ok,
-            correctAnswer: correct
-        });
+            // progress
+            progressBar.style.width = ((currentIndex) / total * 100) + '%';
+            qnumLabel.innerText = `Vraag ${currentIndex+1} / ${total}`;
 
-        document.getElementById('extraHint').innerText = ok ? '✅ korrek!' : `❌ korrek: ${correct}`;
-        document.getElementById('nextBtn').disabled = true;
+            // vraag teks
+            questionText.innerText = q.prompt;
 
-        setTimeout(() => {
-            document.getElementById('nextBtn').disabled = false;
-            currentIndex++;
-            renderQuestion();
-        }, 750);
-    }
+            // hint
+            if (q.type === 'formula') {
+                hintText.innerText = '📌 Skryf die naam van die verbinding / ioon';
+            } else {
+                hintText.innerText = '📌 Skryf die formule (bv. H₂O)';
+            }
 
-    // Enter key vir typed
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !document.getElementById('quizScreen').classList.contains('hidden')) {
-            if (mode === 'typed' && !answered) {
-                handleNext();
+            // opsies / antwoord blok
+            if (mode === 'mcq') {
+                answerBox.classList.add('hidden');
+                optionsContainer.classList.remove('hidden');
+
+                const correctAns = q.answer;
+                let opts = new Set();
+                opts.add(correctAns);
+
+                const allPossible = FULL_BANK.map(item => item.a).concat(FULL_BANK.map(item => item.q));
+                const poolDist = allPossible.filter(x => x !== correctAns);
+
+                while (opts.size < 4) {
+                    const rand = poolDist[Math.floor(Math.random() * poolDist.length)];
+                    opts.add(rand);
+                }
+
+                const optArr = shuffleArray([...opts]);
+
+                optionsContainer.innerHTML = optArr.map(opt =>
+                    `<button data-opt="${opt}" onclick="window.handleMCQ('${opt.replace(/'/g, "\\'")}')">${opt}</button>`
+                ).join('');
+
+                nextBtn.classList.add('hidden');
+                extraHint.innerText = 'Kies een opsie';
+
+            } else {
+                // typed
+                answerBox.classList.remove('hidden');
+                optionsContainer.classList.add('hidden');
+                answerBox.value = '';
+                answerBox.focus();
+                nextBtn.classList.remove('hidden');
+                nextBtn.innerText = (currentIndex === total - 1) ? '✅ Klaar' : 'Volgende →';
+                extraHint.innerText = 'Druk Enter of klik "Volgende"';
             }
         }
-    });
 
-    // ============================
-    //   FINISH
-    // ============================
-    function finishQuiz() {
-        document.getElementById('quizScreen').classList.add('hidden');
-        document.getElementById('resultScreen').classList.remove('hidden');
+        // ============================
+        //   MCQ HANDLE
+        // ============================
+        function handleMCQ(selected) {
+            if (answered || !quizActive) return;
+            answered = true;
+            const q = enriched[currentIndex];
+            const correct = q.answer;
+            const ok = (selected.toLowerCase().trim() === correct.toLowerCase().trim());
 
-        document.getElementById('scoreDisplay').innerText = score;
-        document.getElementById('totalDisplay').innerText = totalQuestions;
+            if (ok) score++;
 
-        document.getElementById('reviewContainer').classList.add('hidden');
-        document.getElementById('reviewContainer').innerHTML = '';
-    }
+            userAnswers.push({
+                prompt: q.prompt,
+                user: selected,
+                correct: ok,
+                correctAnswer: correct
+            });
 
-    // ============================
-    //   REVIEW
-    // ============================
-    function showReview() {
-        const container = document.getElementById('reviewContainer');
-        container.classList.remove('hidden');
+            // wys visuele terugvoer
+            const btns = document.querySelectorAll('#optionsContainer button');
+            btns.forEach(btn => {
+                btn.style.opacity = '0.6';
+                if (btn.dataset.opt === correct) {
+                    btn.style.border = '2px solid #4ade80';
+                    btn.style.background = '#1e3a2a';
+                }
+                if (btn.dataset.opt === selected && !ok) {
+                    btn.style.border = '2px solid #f87171';
+                    btn.style.background = '#3f1f1f';
+                }
+            });
 
-        if (userAnswers.length === 0) {
-            container.innerHTML = '<div style="color:#64748b;">Geen antwoorde nie.</div>';
-            return;
+            extraHint.innerText = ok ? '✅ korrek!' : '❌ foutief';
+
+            setTimeout(() => {
+                currentIndex++;
+                renderQuestion();
+            }, 700);
         }
 
-        let html = '';
-        userAnswers.forEach((ans, i) => {
-            const statusClass = ans.correct ? 'user-correct' : 'user-wrong';
-            html += `
-                <div class="review-item">
-                    <div class="q-text">${i+1}. ${ans.prompt}</div>
-                    <div>Jou antwoord: <span class="${statusClass}">${ans.user}</span></div>
-                    <div>Regte antwoord: <span class="correct-answer">${ans.correctAnswer}</span></div>
-                </div>
-            `;
+        // ============================
+        //   TYPED NEXT
+        // ============================
+        function handleNext() {
+            if (answered || !quizActive) return;
+            if (mode === 'mcq') return;
+
+            const userInput = answerBox.value.trim();
+            if (userInput === '') {
+                extraHint.innerText = '⚠️ Tik eers \'n antwoord';
+                return;
+            }
+
+            answered = true;
+            const q = enriched[currentIndex];
+            const correct = q.answer;
+            const ok = (userInput.toLowerCase() === correct.toLowerCase());
+
+            if (ok) score++;
+
+            userAnswers.push({
+                prompt: q.prompt,
+                user: userInput,
+                correct: ok,
+                correctAnswer: correct
+            });
+
+            extraHint.innerText = ok ? '✅ korrek!' : `❌ korrek: ${correct}`;
+            nextBtn.disabled = true;
+
+            setTimeout(() => {
+                nextBtn.disabled = false;
+                currentIndex++;
+                renderQuestion();
+            }, 750);
+        }
+
+        // ============================
+        //   FINISH
+        // ============================
+        function finishQuiz() {
+            quizActive = false;
+            quizScreen.classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+
+            scoreDisplay.innerText = score;
+            totalDisplay.innerText = totalQuestions;
+
+            reviewContainer.classList.add('hidden');
+            reviewContainer.innerHTML = '';
+        }
+
+        // ============================
+        //   REVIEW
+        // ============================
+        function showReview() {
+            reviewContainer.classList.remove('hidden');
+
+            if (userAnswers.length === 0) {
+                reviewContainer.innerHTML = '<div style="color:#64748b;">Geen antwoorde nie.</div>';
+                return;
+            }
+
+            let html = '';
+            userAnswers.forEach((ans, i) => {
+                const statusClass = ans.correct ? 'user-correct' : 'user-wrong';
+                html += `
+                    <div class="review-item">
+                        <div class="q-text">${i+1}. ${ans.prompt}</div>
+                        <div>Jou antwoord: <span class="${statusClass}">${ans.user}</span></div>
+                        <div>Regte antwoord: <span class="correct-answer">${ans.correctAnswer}</span></div>
+                    </div>
+                `;
+            });
+            reviewContainer.innerHTML = html;
+        }
+
+        // ============================
+        //   EXIT
+        // ============================
+        function exitQuiz() {
+            quizActive = false;
+            quizScreen.classList.add('hidden');
+            resultScreen.classList.add('hidden');
+            menuScreen.classList.remove('hidden');
+
+            currentIndex = 0;
+            score = 0;
+            userAnswers = [];
+            answered = false;
+            reviewContainer.classList.add('hidden');
+            reviewContainer.innerHTML = '';
+            
+            // Reset UI
+            progressBar.style.width = '0%';
+            optionsContainer.innerHTML = '';
+            answerBox.value = '';
+            extraHint.innerText = '';
+        }
+
+        // ============================
+        //   EVENT LISTENERS
+        // ============================
+        startBtn.addEventListener('click', function(e) {
+            console.log("Start button clicked");
+            startQuiz();
         });
-        container.innerHTML = html;
-    }
 
-    // ============================
-    //   EXIT
-    // ============================
-    function exitQuiz() {
-        document.getElementById('quizScreen').classList.add('hidden');
-        document.getElementById('resultScreen').classList.add('hidden');
-        document.getElementById('menuScreen').classList.remove('hidden');
+        // Enter key vir typed
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !quizScreen.classList.contains('hidden') && quizActive) {
+                if (mode === 'typed' && !answered) {
+                    handleNext();
+                }
+            }
+        });
 
-        // reset
-        currentIndex = 0;
-        score = 0;
-        userAnswers = [];
-        answered = false;
-        document.getElementById('reviewContainer').classList.add('hidden');
-        document.getElementById('reviewContainer').innerHTML = '';
-    }
+        // amount validation
+        amountInput.addEventListener('change', function() {
+            let v = parseInt(this.value, 10);
+            if (isNaN(v) || v < 5) this.value = 5;
+            if (v > 50) this.value = 50;
+        });
 
-    // ekstra: as iemand die amount veld verander, hou binne perke
-    document.getElementById('amountInput').addEventListener('change', function() {
-        let v = parseInt(this.value, 10);
-        if (isNaN(v) || v < 5) this.value = 5;
-        if (v > 50) this.value = 50;
-    });
+        // expose functions to window for inline onclick
+        window.startQuiz = startQuiz;
+        window.handleMCQ = handleMCQ;
+        window.handleNext = handleNext;
+        window.exitQuiz = exitQuiz;
+        window.showReview = showReview;
 
-    // ============================
-    //   INIT (toon menu)
-    // ============================
-    // (Alles begin sigbaar)
+        console.log("App initialized. Click 'Begin toets' to start.");
+    })();
 </script>
 
 </body>
