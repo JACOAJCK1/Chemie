@@ -1,15 +1,17 @@
 <!DOCTYPE html>
 <html lang="af">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚗️ Chemie Toets • Random</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🧱 Blok Stapel • Chemie</title>
     <style>
         * {
             box-sizing: border-box;
-        }
-        body {
             margin: 0;
+            padding: 0;
+        }
+
+        body {
             background: #0b1120;
             font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
             display: flex;
@@ -17,86 +19,128 @@
             align-items: center;
             min-height: 100vh;
             color: #e2e8f0;
-            padding: 16px;
+            padding: 12px;
+            margin: 0;
         }
 
-        .container {
+        .game-wrapper {
             width: 100%;
-            max-width: 700px;
+            max-width: 820px;
             background: #111827;
-            border-radius: 28px;
-            padding: 28px 24px;
-            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.8);
+            border-radius: 32px;
+            padding: 20px 20px 24px;
+            box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.9);
             border: 1px solid #1e293b;
+            position: relative;
+            overflow: hidden;
         }
 
-        h1 {
-            font-weight: 500;
-            font-size: 1.9rem;
-            margin-top: 0;
-            margin-bottom: 12px;
-            letter-spacing: -0.3px;
+        /* ===== CANVAS ===== */
+        .canvas-wrap {
+            position: relative;
+            border-radius: 20px;
+            overflow: hidden;
+            background: #1a2332;
+            aspect-ratio: 800 / 480;
+            width: 100%;
+            border: 1px solid #2d3a52;
+        }
+
+        #gameCanvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            cursor: default;
+        }
+
+        /* ===== UI UNDER CANVAS ===== */
+        .ui-panel {
+            margin-top: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .question-row {
             display: flex;
             align-items: center;
-            gap: 8px;
-            color: #f0f9ff;
-            border-bottom: 1px solid #1e293b;
-            padding-bottom: 16px;
-        }
-        h1 small {
-            font-size: 0.9rem;
-            font-weight: 300;
-            color: #94a3b8;
-            margin-left: auto;
-        }
-
-        .menu-card {
+            gap: 12px;
+            flex-wrap: wrap;
             background: #0f172a;
+            padding: 12px 18px;
+            border-radius: 16px;
+            border-left: 4px solid #3b82f6;
+            min-height: 60px;
+        }
+
+        .question-row .q-label {
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: #f0f9ff;
+            word-break: break-word;
+            flex: 1;
+            min-width: 120px;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        .question-row .q-label sub {
+            font-size: 0.65em;
+            vertical-align: sub;
+        }
+        .question-row .q-label sup {
+            font-size: 0.65em;
+            vertical-align: super;
+        }
+
+        .question-row .q-hint {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            background: #1e293b;
+            padding: 4px 14px;
             border-radius: 20px;
-            padding: 20px 18px;
+            white-space: nowrap;
         }
 
-        label {
-            display: block;
-            margin-top: 18px;
-            font-weight: 400;
-            color: #b9d0f0;
-            font-size: 0.95rem;
-            letter-spacing: 0.3px;
+        .input-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
         }
 
-        input,
-        select {
-            width: 100%;
-            padding: 12px 14px;
+        .input-row input {
+            flex: 1;
+            min-width: 140px;
+            padding: 12px 18px;
             border-radius: 40px;
-            border: 1px solid #1e293b;
+            border: 1px solid #2d3a52;
             background: #0b1220;
             color: white;
-            font-size: 1rem;
+            font-size: 1.05rem;
+            font-family: 'Courier New', monospace;
             transition: 0.15s;
-            margin-top: 4px;
+            outline: none;
         }
-        input:focus,
-        select:focus {
-            outline: 2px solid #3b82f6;
-            border-color: transparent;
+        .input-row input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+        .input-row input::placeholder {
+            color: #4b5a77;
         }
 
-        .btn {
+        .input-row .btn {
             border: none;
             border-radius: 40px;
-            padding: 12px 20px;
+            padding: 12px 24px;
             font-weight: 600;
-            font-size: 1rem;
+            font-size: 0.95rem;
             cursor: pointer;
-            transition: all 0.15s;
-            background: #1e293b;
-            color: #e2e8f0;
-            width: 100%;
-            margin-top: 20px;
-            letter-spacing: 0.3px;
+            transition: 0.15s;
+            letter-spacing: 0.2px;
+            white-space: nowrap;
         }
+
         .btn-primary {
             background: #2563eb;
             color: white;
@@ -104,8 +148,14 @@
         }
         .btn-primary:hover {
             background: #1d4ed8;
-            transform: scale(1.01);
+            transform: scale(1.02);
         }
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         .btn-danger {
             background: #dc2626;
             color: white;
@@ -113,166 +163,197 @@
         .btn-danger:hover {
             background: #b91c1c;
         }
+
         .btn-outline {
             background: transparent;
             border: 1px solid #334155;
-            margin-top: 10px;
+            color: #cbd5e1;
         }
         .btn-outline:hover {
             background: #1e293b;
         }
 
-        .hidden {
-            display: none !important;
-        }
-
-        /* PROGRESS */
-        .progress {
-            height: 8px;
-            background: #1e293b;
-            border-radius: 20px;
-            margin: 8px 0 16px 0;
-            overflow: hidden;
-        }
-        .bar {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, #22d3ee, #3b82f6);
-            border-radius: 20px;
-            transition: width 0.3s ease;
-        }
-
-        .qnum {
+        .stats-row {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            padding: 0 4px;
+            font-size: 0.9rem;
             color: #94a3b8;
-            font-size: 0.9rem;
-            letter-spacing: 0.2px;
         }
-
-        .question {
-            font-size: 1.8rem;
-            font-weight: 500;
-            margin: 20px 0 10px 0;
-            line-height: 1.3;
-            background: #0f172a;
-            padding: 12px 16px;
-            border-radius: 16px;
-            border-left: 4px solid #3b82f6;
-            word-break: break-word;
+        .stats-row span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
-
-        .hint {
-            font-size: 0.9rem;
-            color: #7b9ed6;
-            margin-bottom: 16px;
-            padding-left: 4px;
-        }
-
-        #answerBox {
-            background: #0b1220;
-            border: 1px solid #2d3a52;
-            border-radius: 40px;
-            padding: 14px 18px;
-            color: white;
+        .stats-row .num {
+            font-weight: 700;
+            color: #e2e8f0;
             font-size: 1.1rem;
-            margin: 12px 0 8px 0;
-            width: 100%;
         }
-        #answerBox::placeholder {
-            color: #4b5a77;
+        .stats-row .num.gold {
+            color: #fbbf24;
         }
-
-        .options {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin: 16px 0 10px 0;
+        .stats-row .num.green {
+            color: #4ade80;
         }
-        .options button {
-            background: #1e293b;
-            border: 1px solid #2d3a52;
-            border-radius: 60px;
-            padding: 14px 18px;
-            color: #f1f5f9;
-            font-size: 1rem;
-            font-weight: 500;
-            text-align: left;
-            transition: 0.1s;
-            cursor: pointer;
-        }
-        .options button:hover {
-            background: #2d3f5e;
-            border-color: #3b82f6;
-            transform: scale(1.01);
-        }
-
-        .exit-row {
-            display: flex;
-            gap: 12px;
-            margin-top: 20px;
-        }
-        .exit-row .btn {
-            flex: 1;
-            margin-top: 0;
-        }
-
-        /* RESULT */
-        .result-score {
-            background: #0f172a;
-            padding: 24px 16px;
-            border-radius: 32px;
-            text-align: center;
-            font-size: 2.2rem;
-            font-weight: 600;
-            margin: 18px 0 20px 0;
-            border: 1px solid #1e293b;
-        }
-        .result-score span {
+        .stats-row .num.blue {
             color: #60a5fa;
         }
 
-        .review-box {
-            max-height: 340px;
-            overflow-y: auto;
-            background: #0a111f;
-            padding: 16px 14px;
-            border-radius: 20px;
-            margin-top: 20px;
-            border: 1px solid #1e293b;
+        .feedback-msg {
+            font-size: 0.95rem;
+            min-height: 28px;
+            padding: 4px 6px;
+            border-radius: 8px;
+            transition: 0.2s;
         }
-        .review-item {
-            padding: 12px 6px;
-            border-bottom: 1px solid #1e293b;
-        }
-        .review-item:last-child {
-            border-bottom: none;
-        }
-        .review-item .user-wrong {
-            color: #f87171;
-        }
-        .review-item .user-correct {
+        .feedback-msg.correct {
             color: #4ade80;
         }
-        .review-item .correct-answer {
-            color: #93c5fd;
+        .feedback-msg.wrong {
+            color: #f87171;
         }
-        .review-item .q-text {
-            font-weight: 500;
-            font-size: 1.05rem;
-        }
-
-        .badge {
-            display: inline-block;
-            background: #1e293b;
-            padding: 2px 12px;
-            border-radius: 30px;
-            font-size: 0.75rem;
+        .feedback-msg.info {
             color: #94a3b8;
-            margin-right: 6px;
         }
 
-        /* scroll */
+        /* ===== GAME OVER OVERLAY ===== */
+        .game-over-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(6px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+            border-radius: 20px;
+            flex-direction: column;
+            padding: 24px;
+            animation: fadeIn 0.5s ease;
+        }
+        .game-over-overlay.show {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .game-over-box {
+            background: #1e293b;
+            padding: 32px 40px;
+            border-radius: 28px;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            border: 1px solid #334155;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+        }
+        .game-over-box h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #f87171;
+            margin-bottom: 4px;
+        }
+        .game-over-box .sub {
+            color: #94a3b8;
+            font-size: 1rem;
+            margin-bottom: 16px;
+        }
+        .game-over-box .big-score {
+            font-size: 3.2rem;
+            font-weight: 700;
+            color: #fbbf24;
+            line-height: 1.2;
+        }
+        .game-over-box .big-label {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+        .game-over-box .divider {
+            border: none;
+            border-top: 1px solid #334155;
+            margin: 16px 0;
+        }
+        .game-over-box .btn-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 16px;
+        }
+        .game-over-box .btn-group .btn {
+            flex: 1;
+            min-width: 100px;
+            padding: 12px 20px;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 600px) {
+            .game-wrapper {
+                padding: 12px;
+            }
+            .question-row .q-label {
+                font-size: 1.2rem;
+            }
+            .question-row .q-hint {
+                font-size: 0.7rem;
+                padding: 2px 10px;
+            }
+            .input-row input {
+                font-size: 0.9rem;
+                padding: 10px 14px;
+                min-width: 100px;
+            }
+            .input-row .btn {
+                padding: 10px 16px;
+                font-size: 0.85rem;
+            }
+            .game-over-box {
+                padding: 24px 20px;
+            }
+            .game-over-box .big-score {
+                font-size: 2.4rem;
+            }
+            .stats-row {
+                gap: 12px;
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .question-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 6px;
+            }
+            .question-row .q-hint {
+                white-space: normal;
+            }
+            .input-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .input-row input {
+                min-width: unset;
+            }
+            .input-row .btn {
+                width: 100%;
+            }
+        }
+
+        /* scrollbar */
         ::-webkit-scrollbar {
-            width: 5px;
+            width: 4px;
         }
         ::-webkit-scrollbar-track {
             background: #0b1220;
@@ -281,489 +362,857 @@
             background: #334155;
             border-radius: 12px;
         }
-
-        /* debug */
-        .debug {
-            color: #fbbf24;
-            font-size: 0.8rem;
-            margin-top: 10px;
-            background: #1e293b;
-            padding: 6px 12px;
-            border-radius: 8px;
-        }
     </style>
 </head>
 <body>
 
-<div class="container">
+    <div class="game-wrapper" id="app">
+        <!-- CANVAS -->
+        <div class="canvas-wrap" id="canvasWrap">
+            <canvas id="gameCanvas" width="800" height="480"></canvas>
 
-    <!-- ===== MENU ===== -->
-    <div id="menuScreen">
-        <h1>🧪 Chemie Toets <small>vraagbank • 50+</small></h1>
-        <div class="menu-card">
-            <label>📊 Aantal vrae (5–50)</label>
-            <input type="number" id="amountInput" min="5" max="50" value="15">
-
-            <label>🎯 Antwoord tipe</label>
-            <select id="modeSelect">
-                <option value="typed">✍️ Tik-antwoord</option>
-                <option value="mcq">🔘 Veelkeuse (4 opsies)</option>
-            </select>
-
-            <button class="btn btn-primary" id="startBtn">🚀 Begin toets</button>
+            <!-- GAME OVER OVERLAY -->
+            <div class="game-over-overlay" id="gameOverOverlay">
+                <div class="game-over-box">
+                    <h2>💥 O nee!</h2>
+                    <p class="sub">Die mannetjie het afgeval!</p>
+                    <div class="big-score" id="finalScore">0</div>
+                    <div class="big-label">✅ korrekte antwoorde</div>
+                    <hr class="divider" />
+                    <div style="display:flex; justify-content:center; gap:20px; color:#94a3b8; font-size:0.9rem;">
+                        <span>📦 <span id="finalBlocks" style="color:#e2e8f0;font-weight:600;">0</span> blokke</span>
+                        <span>🔥 <span id="finalStreak" style="color:#fbbf24;font-weight:600;">0</span> langste reeks</span>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="restartGame()">🔄 Probeer weer</button>
+                        <button class="btn btn-outline" onclick="quitGame()">🏠 Stoppe</button>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div style="margin-top: 12px; font-size: 0.8rem; color: #475569; text-align: center; border-top: 1px solid #1e293b; padding-top: 14px;">
-            ⚡ willekeurig · geen herhaling binne toets
+
+        <!-- UI PANEL -->
+        <div class="ui-panel">
+            <div class="question-row">
+                <span class="q-label" id="qText">H₂O</span>
+                <span class="q-hint" id="qHint">📝 tik die naam</span>
+            </div>
+
+            <div class="input-row">
+                <input type="text" id="answerInput" placeholder="Skryf jou antwoord..." autofocus />
+                <button class="btn btn-primary" id="submitBtn">⏎ Bevestig</button>
+                <button class="btn btn-danger" id="quitBtn">✕ Stop</button>
+            </div>
+
+            <div class="feedback-msg info" id="feedbackMsg">💡 Tik jou antwoord en druk Enter</div>
+
+            <div class="stats-row">
+                <span>✅ Korrek: <span class="num green" id="scoreDisplay">0</span></span>
+                <span>🔥 Reeks: <span class="num gold" id="streakDisplay">0</span></span>
+                <span>📦 Hoogte: <span class="num blue" id="heightDisplay">3</span></span>
+                <span>🏆 Beste reeks: <span class="num gold" id="bestStreakDisplay">0</span></span>
+            </div>
         </div>
-        <div id="debugInfo" class="debug hidden"></div>
     </div>
 
-    <!-- ===== QUIZ ===== -->
-    <div id="quizScreen" class="hidden">
-        <div class="progress"><div class="bar" id="progressBar"></div></div>
-        <div class="qnum" id="qnumLabel">Vraag 1 / 15</div>
-
-        <div class="question" id="questionText">OH⁻</div>
-        <div class="hint" id="hintText">⏳ tik die naam of formule</div>
-
-        <input id="answerBox" class="hidden" placeholder="Skryf jou antwoord..." autofocus>
-
-        <div class="options" id="optionsContainer"></div>
-
-        <div class="exit-row">
-            <button class="btn btn-danger" onclick="exitQuiz()">🚪 Stop</button>
-            <button class="btn btn-primary" id="nextBtn" onclick="handleNext()">Volgende →</button>
-        </div>
-        <div style="margin-top: 6px; font-size:0.8rem; color:#475569;" id="extraHint"></div>
-    </div>
-
-    <!-- ===== RESULT ===== -->
-    <div id="resultScreen" class="hidden">
-        <h2 style="font-weight:400; margin-bottom:4px;">📋 Klaar!</h2>
-        <div class="result-score">
-            <span id="scoreDisplay">0</span> / <span id="totalDisplay">0</span>
-        </div>
-
-        <button class="btn btn-primary" onclick="showReview()">📖 Review antwoorde</button>
-        <button class="btn btn-outline" onclick="exitQuiz()">🏠 Terug na menu</button>
-
-        <div id="reviewContainer" class="review-box hidden"></div>
-    </div>
-
-</div>
-
-<script>
-    (function() {
-        'use strict';
-
-        // ============================
-        //   GROOT VOLLEDIGE DATABANK
-        // ============================
-        const FULL_BANK = [
-            // --- Anione (poliatomies) ---
-            { q: "OH⁻", a: "hidroksied" },
-            { q: "NO₃⁻", a: "nitraation" },
-            { q: "NO₂⁻", a: "nitrietioon" },
-            { q: "MnO₄⁻", a: "permanganaation" },
-            { q: "ClO₃⁻", a: "chloraation" },
-            { q: "CH₃COO⁻", a: "asetaation" },
-            { q: "HCO₃⁻", a: "waterstofkarbonaat" },
-            { q: "HSO₄⁻", a: "waterstofsulfaatioon" },
-            { q: "SO₄²⁻", a: "sulfaatioon" },
-            { q: "MnO₄²⁻", a: "manganaation" },
-            { q: "SO₃²⁻", a: "sulfietioon" },
-            { q: "CO₃²⁻", a: "karbonaation" },
-            { q: "CrO₄²⁻", a: "chromaatioon" },
-            { q: "Cr₂O₇²⁻", a: "dichromaatioon" },
-            { q: "O₂²⁻", a: "peroksiedioon" },
-            { q: "PO₄³⁻", a: "fosfaation" },
-            // --- Katione ---
-            { q: "NH₄⁺", a: "ammoniumioon" },
-            { q: "H₃O⁺", a: "hidroniumioon" },
-            // --- Molekules (nie-metale) ---
-            { q: "H₂O", a: "water" },
-            { q: "NH₃", a: "ammoniak" },
-            { q: "HCl", a: "soutsuur" },
-            { q: "H₂SO₄", a: "swawelsuur" },
-            { q: "HNO₃", a: "salpetersuur" },
-            { q: "H₂CO₃", a: "koolsuur" },
-            { q: "CH₃COOH", a: "asynsuur" },
-            { q: "CO₂", a: "koolstofdioksied" },
-            { q: "P₂O₅", a: "difosforpentoksied" },
-            { q: "NO₂", a: "stikstofdioksied" },
-            { q: "N₂O₄", a: "distikstoftetraoksied" },
-            { q: "PCl₅", a: "fosforpentachloried" },
-            { q: "BF₃", a: "boor trifluoried" },
-            { q: "HSO₃⁻", a: "waterstofsulfietioon" },
-            { q: "Cl⁻", a: "chloriedioon" },
-            { q: "Na⁺", a: "natriumioon" },
-            { q: "Mg²⁺", a: "magnesiumioon" },
-            { q: "Al³⁺", a: "aluminiumioon" },
-            { q: "Ca²⁺", a: "kalsiumioon" },
-            { q: "K⁺", a: "kaliumioon" },
+    <script>
+        // ============================================================
+        //   CHEMIE VRAAGBANK
+        // ============================================================
+        const CHEM_BANK = [
+            // Anione
+            { display: "OH⁻", answer: "OH(-1)", name: "hidroksied" },
+            { display: "NO₃⁻", answer: "NO3(-1)", name: "nitraation" },
+            { display: "NO₂⁻", answer: "NO2(-1)", name: "nitrietioon" },
+            { display: "MnO₄⁻", answer: "MnO4(-1)", name: "permanganaation" },
+            { display: "ClO₃⁻", answer: "ClO3(-1)", name: "chloraation" },
+            { display: "CH₃COO⁻", answer: "CH3COO(-1)", name: "asetaation" },
+            { display: "HCO₃⁻", answer: "HCO3(-1)", name: "waterstofkarbonaat" },
+            { display: "HSO₄⁻", answer: "HSO4(-1)", name: "waterstofsulfaatioon" },
+            { display: "SO₄²⁻", answer: "SO4(-2)", name: "sulfaatioon" },
+            { display: "MnO₄²⁻", answer: "MnO4(-2)", name: "manganaation" },
+            { display: "SO₃²⁻", answer: "SO3(-2)", name: "sulfietioon" },
+            { display: "CO₃²⁻", answer: "CO3(-2)", name: "karbonaation" },
+            { display: "CrO₄²⁻", answer: "CrO4(-2)", name: "chromaatioon" },
+            { display: "Cr₂O₇²⁻", answer: "Cr2O7(-2)", name: "dichromaatioon" },
+            { display: "O₂²⁻", answer: "O2(-2)", name: "peroksiedioon" },
+            { display: "PO₄³⁻", answer: "PO4(-3)", name: "fosfaation" },
+            // Katione
+            { display: "NH₄⁺", answer: "NH4(+1)", name: "ammoniumioon" },
+            { display: "H₃O⁺", answer: "H3O(+1)", name: "hidroniumioon" },
+            // Molekules
+            { display: "H₂O", answer: "H2O", name: "water" },
+            { display: "NH₃", answer: "NH3", name: "ammoniak" },
+            { display: "HCl", answer: "HCl", name: "soutsuur" },
+            { display: "H₂SO₄", answer: "H2SO4", name: "swawelsuur" },
+            { display: "HNO₃", answer: "HNO3", name: "salpetersuur" },
+            { display: "H₂CO₃", answer: "H2CO3", name: "koolsuur" },
+            { display: "CH₃COOH", answer: "CH3COOH", name: "asynsuur" },
+            { display: "CO₂", answer: "CO2", name: "koolstofdioksied" },
+            { display: "P₂O₅", answer: "P2O5", name: "difosforpentoksied" },
+            { display: "NO₂", answer: "NO2", name: "stikstofdioksied" },
+            { display: "N₂O₄", answer: "N2O4", name: "distikstoftetraoksied" },
+            { display: "PCl₅", answer: "PCl5", name: "fosforpentachloried" },
+            { display: "BF₃", answer: "BF3", name: "boor trifluoried" },
+            { display: "HSO₃⁻", answer: "HSO3(-1)", name: "waterstofsulfietioon" },
+            { display: "Cl⁻", answer: "Cl(-1)", name: "chloriedioon" },
+            { display: "Na⁺", answer: "Na(+1)", name: "natriumioon" },
+            { display: "Mg²⁺", answer: "Mg(+2)", name: "magnesiumioon" },
+            { display: "Al³⁺", answer: "Al(+3)", name: "aluminiumioon" },
+            { display: "Ca²⁺", answer: "Ca(+2)", name: "kalsiumioon" },
+            { display: "K⁺", answer: "K(+1)", name: "kaliumioon" },
         ];
 
-        // ============================
-        //   STATE
-        // ============================
-        let quizQuestions = [];
-        let enriched = [];
-        let currentIndex = 0;
-        let score = 0;
-        let userAnswers = [];
-        let mode = 'typed';
-        let totalQuestions = 15;
-        let answered = false;
-        let quizActive = false;
-
-        // DOM refs
-        const menuScreen = document.getElementById('menuScreen');
-        const quizScreen = document.getElementById('quizScreen');
-        const resultScreen = document.getElementById('resultScreen');
-        const startBtn = document.getElementById('startBtn');
-        const amountInput = document.getElementById('amountInput');
-        const modeSelect = document.getElementById('modeSelect');
-        const progressBar = document.getElementById('progressBar');
-        const qnumLabel = document.getElementById('qnumLabel');
-        const questionText = document.getElementById('questionText');
-        const hintText = document.getElementById('hintText');
-        const answerBox = document.getElementById('answerBox');
-        const optionsContainer = document.getElementById('optionsContainer');
-        const nextBtn = document.getElementById('nextBtn');
-        const extraHint = document.getElementById('extraHint');
+        // ============================================================
+        //   DOM REFS
+        // ============================================================
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const qText = document.getElementById('qText');
+        const qHint = document.getElementById('qHint');
+        const answerInput = document.getElementById('answerInput');
+        const submitBtn = document.getElementById('submitBtn');
+        const quitBtn = document.getElementById('quitBtn');
+        const feedbackMsg = document.getElementById('feedbackMsg');
         const scoreDisplay = document.getElementById('scoreDisplay');
-        const totalDisplay = document.getElementById('totalDisplay');
-        const reviewContainer = document.getElementById('reviewContainer');
-        const debugInfo = document.getElementById('debugInfo');
+        const streakDisplay = document.getElementById('streakDisplay');
+        const heightDisplay = document.getElementById('heightDisplay');
+        const bestStreakDisplay = document.getElementById('bestStreakDisplay');
+        const gameOverOverlay = document.getElementById('gameOverOverlay');
+        const finalScore = document.getElementById('finalScore');
+        const finalBlocks = document.getElementById('finalBlocks');
+        const finalStreak = document.getElementById('finalStreak');
 
-        // ============================
-        //   SHUFFLE
-        // ============================
-        function shuffleArray(arr) {
-            for (let i = arr.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [arr[i], arr[j]] = [arr[j], arr[i]];
+        // ============================================================
+        //   GAME STATE
+        // ============================================================
+        const BLOCK_W = 72;
+        const BLOCK_H = 32;
+        const GROUND_Y = 430;
+        const START_BLOCKS = 3;
+
+        let stack = []; // array of color strings, bottom to top
+        let score = 0;
+        let streak = 0;
+        let bestStreak = 0;
+        let isGameOver = false;
+        let isAnswering = false;
+
+        // current question
+        let currentQ = null; // { display, answer, name, type: 'formula'|'name' }
+        let currentCorrect = '';
+
+        // character state
+        let charY = 0; // y-offset relative to stack top
+        let charFalling = false;
+        let fallVelocity = 0;
+        let fallRotation = 0;
+        let charScale = 1;
+
+        // block animation
+        let newBlockAnim = 0; // 0..1
+        let newBlockColor = '';
+        let bounceAnim = 0;
+
+        // clouds
+        let clouds = [];
+
+        // ============================================================
+        //   INIT
+        // ============================================================
+        function initGame() {
+            // build initial stack
+            const colors = getColorPalette();
+            stack = [];
+            for (let i = 0; i < START_BLOCKS; i++) {
+                stack.push(colors[i % colors.length]);
             }
-            return arr;
-        }
-
-        // ============================
-        //   START QUIZ
-        // ============================
-        function startQuiz() {
-            console.log("startQuiz() called");
-            
-            // lees instellings
-            let amt = parseInt(amountInput.value, 10);
-            if (isNaN(amt) || amt < 5) amt = 5;
-            if (amt > 50) amt = 50;
-            totalQuestions = amt;
-            amountInput.value = amt;
-
-            mode = modeSelect.value;
-            console.log("Mode:", mode, "Amount:", totalQuestions);
-
-            // --- bou 'n random lys sonder herhaling ---
-            const shuffledBank = shuffleArray([...FULL_BANK]);
-            let pool = [];
-            
-            while (pool.length < totalQuestions) {
-                if (pool.length + shuffledBank.length <= totalQuestions) {
-                    pool.push(...shuffledBank);
-                    if (pool.length < totalQuestions) {
-                        const extra = shuffleArray([...FULL_BANK]);
-                        pool.push(...extra);
-                    }
-                } else {
-                    const needed = totalQuestions - pool.length;
-                    pool.push(...shuffledBank.slice(0, needed));
-                }
-            }
-
-            quizQuestions = pool.slice(0, totalQuestions);
-            console.log("Quiz questions created:", quizQuestions.length);
-
-            // --- verryk met vraag-tipe ---
-            enriched = quizQuestions.map(item => {
-                const askFormula = Math.random() < 0.5;
-                if (askFormula) {
-                    return {
-                        prompt: item.q,
-                        answer: item.a,
-                        type: 'formula',
-                        rawQ: item.q,
-                        rawA: item.a
-                    };
-                } else {
-                    return {
-                        prompt: item.a,
-                        answer: item.q,
-                        type: 'name',
-                        rawQ: item.q,
-                        rawA: item.a
-                    };
-                }
-            });
-
-            // reset state
-            currentIndex = 0;
             score = 0;
-            userAnswers = [];
-            answered = false;
-            quizActive = true;
+            streak = 0;
+            bestStreak = 0;
+            isGameOver = false;
+            isAnswering = false;
+            charFalling = false;
+            fallVelocity = 0;
+            fallRotation = 0;
+            charScale = 1;
+            newBlockAnim = 0;
+            bounceAnim = 0;
 
-            // skerms
-            menuScreen.classList.add('hidden');
-            resultScreen.classList.add('hidden');
-            quizScreen.classList.remove('hidden');
-            
-            console.log("Switched to quiz screen");
-            debugInfo.classList.add('hidden');
-
-            // wys eerste vraag
-            renderQuestion();
+            gameOverOverlay.classList.remove('show');
+            updateStats();
+            generateQuestion();
+            draw();
+            answerInput.disabled = false;
+            answerInput.value = '';
+            answerInput.focus();
+            feedbackMsg.className = 'feedback-msg info';
+            feedbackMsg.textContent = '💡 Tik jou antwoord en druk Enter';
         }
 
-        // ============================
-        //   RENDER VRAAG
-        // ============================
-        function renderQuestion() {
-            if (currentIndex >= enriched.length) {
-                finishQuiz();
-                return;
-            }
+        function getColorPalette() {
+            return [
+                '#ef4444', '#f97316', '#eab308', '#22c55e',
+                '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899',
+                '#14b8a6', '#f59e0b', '#10b981', '#6366f1',
+                '#f472b6', '#34d399', '#60a5fa', '#a78bfa'
+            ];
+        }
 
-            answered = false;
-            const q = enriched[currentIndex];
-            const total = enriched.length;
-
-            // progress
-            progressBar.style.width = ((currentIndex) / total * 100) + '%';
-            qnumLabel.innerText = `Vraag ${currentIndex+1} / ${total}`;
-
-            // vraag teks
-            questionText.innerText = q.prompt;
-
-            // hint
-            if (q.type === 'formula') {
-                hintText.innerText = '📌 Skryf die naam van die verbinding / ioon';
+        // ============================================================
+        //   VRAAG GENERERING
+        // ============================================================
+        function generateQuestion() {
+            // pick random from bank
+            const idx = Math.floor(Math.random() * CHEM_BANK.length);
+            const item = CHEM_BANK[idx];
+            // decide direction
+            const askFormula = Math.random() < 0.5;
+            if (askFormula) {
+                currentQ = {
+                    display: item.display,
+                    answer: item.name,
+                    type: 'formula',
+                    correctAnswer: item.name,
+                    hint: '📝 tik die naam'
+                };
+                qText.innerHTML = item.display;
+                qHint.textContent = '📝 tik die naam';
             } else {
-                hintText.innerText = '📌 Skryf die formule (bv. H₂O)';
+                currentQ = {
+                    display: item.name,
+                    answer: item.answer,
+                    type: 'name',
+                    correctAnswer: item.answer,
+                    hint: '📝 tik die formule (bv. SO4(-2))'
+                };
+                qText.textContent = item.name;
+                qHint.textContent = '📝 tik die formule (bv. SO4(-2))';
+            }
+            currentCorrect = currentQ.answer;
+            answerInput.value = '';
+            answerInput.disabled = false;
+            answerInput.focus();
+            feedbackMsg.className = 'feedback-msg info';
+            feedbackMsg.textContent = '💡 Tik jou antwoord...';
+        }
+
+        // ============================================================
+        //   STATS UPDATE
+        // ============================================================
+        function updateStats() {
+            scoreDisplay.textContent = score;
+            streakDisplay.textContent = streak;
+            heightDisplay.textContent = stack.length;
+            bestStreakDisplay.textContent = bestStreak;
+        }
+
+        // ============================================================
+        //   ANTWOORD HANTEER
+        // ============================================================
+        function handleAnswer() {
+            if (isGameOver || isAnswering) return;
+            const raw = answerInput.value.trim();
+            if (raw === '') {
+                feedbackMsg.className = 'feedback-msg info';
+                feedbackMsg.textContent = '⚠️ Tik eers \'n antwoord';
+                return;
             }
 
-            // opsies / antwoord blok
-            if (mode === 'mcq') {
-                answerBox.classList.add('hidden');
-                optionsContainer.classList.remove('hidden');
+            isAnswering = true;
+            const userAns = raw.toLowerCase();
+            const correct = currentCorrect.toLowerCase();
+            const ok = (userAns === correct);
 
-                const correctAns = q.answer;
-                let opts = new Set();
-                opts.add(correctAns);
+            if (ok) {
+                // CORRECT
+                score++;
+                streak++;
+                if (streak > bestStreak) bestStreak = streak;
+                feedbackMsg.className = 'feedback-msg correct';
+                feedbackMsg.textContent = '✅ Korrek! +1 blok!';
+                // add block
+                const colors = getColorPalette();
+                const newColor = colors[stack.length % colors.length];
+                stack.push(newColor);
+                newBlockColor = newColor;
+                newBlockAnim = 0;
+                bounceAnim = 0;
+                // char bounce
+                charScale = 1.15;
+                updateStats();
+                answerInput.disabled = true;
 
-                const allPossible = FULL_BANK.map(item => item.a).concat(FULL_BANK.map(item => item.q));
-                const poolDist = allPossible.filter(x => x !== correctAns);
-
-                while (opts.size < 4) {
-                    const rand = poolDist[Math.floor(Math.random() * poolDist.length)];
-                    opts.add(rand);
-                }
-
-                const optArr = shuffleArray([...opts]);
-
-                optionsContainer.innerHTML = optArr.map(opt =>
-                    `<button data-opt="${opt}" onclick="window.handleMCQ('${opt.replace(/'/g, "\\'")}')">${opt}</button>`
-                ).join('');
-
-                nextBtn.classList.add('hidden');
-                extraHint.innerText = 'Kies een opsie';
+                // after delay, next question
+                setTimeout(() => {
+                    isAnswering = false;
+                    generateQuestion();
+                    answerInput.disabled = false;
+                    answerInput.focus();
+                    // reset anim
+                    newBlockAnim = 0;
+                    charScale = 1;
+                    draw();
+                }, 500);
 
             } else {
-                // typed
-                answerBox.classList.remove('hidden');
-                optionsContainer.classList.add('hidden');
-                answerBox.value = '';
-                answerBox.focus();
-                nextBtn.classList.remove('hidden');
-                nextBtn.innerText = (currentIndex === total - 1) ? '✅ Klaar' : 'Volgende →';
-                extraHint.innerText = 'Druk Enter of klik "Volgende"';
+                // WRONG
+                feedbackMsg.className = 'feedback-msg wrong';
+                feedbackMsg.textContent = `❌ Foutief! Regte antwoord: ${currentCorrect}`;
+                // fall!
+                charFalling = true;
+                fallVelocity = 0;
+                fallRotation = 0;
+                isGameOver = true;
+                answerInput.disabled = true;
+                submitBtn.disabled = true;
+
+                // show game over after fall animation
+                setTimeout(() => {
+                    finalScore.textContent = score;
+                    finalBlocks.textContent = stack.length;
+                    finalStreak.textContent = bestStreak;
+                    gameOverOverlay.classList.add('show');
+                    submitBtn.disabled = false;
+                }, 1200);
             }
+
+            updateStats();
+            draw();
         }
 
-        // ============================
-        //   MCQ HANDLE
-        // ============================
-        function handleMCQ(selected) {
-            if (answered || !quizActive) return;
-            answered = true;
-            const q = enriched[currentIndex];
-            const correct = q.answer;
-            const ok = (selected.toLowerCase().trim() === correct.toLowerCase().trim());
+        // ============================================================
+        //   RENDER (CANVAS)
+        // ============================================================
+        function draw() {
+            const W = canvas.width;
+            const H = canvas.height;
+            ctx.clearRect(0, 0, W, H);
 
-            if (ok) score++;
+            // ---- BACKGROUND ----
+            drawBackground(ctx, W, H);
 
-            userAnswers.push({
-                prompt: q.prompt,
-                user: selected,
-                correct: ok,
-                correctAnswer: correct
-            });
+            // ---- GROUND ----
+            drawGround(ctx, W, H);
 
-            // wys visuele terugvoer
-            const btns = document.querySelectorAll('#optionsContainer button');
-            btns.forEach(btn => {
-                btn.style.opacity = '0.6';
-                if (btn.dataset.opt === correct) {
-                    btn.style.border = '2px solid #4ade80';
-                    btn.style.background = '#1e3a2a';
+            // ---- BLOCKS ----
+            const stackTopY = drawBlocks(ctx, W, H);
+
+            // ---- CHARACTER ----
+            drawCharacter(ctx, W, H, stackTopY);
+
+            // ---- EFFECTS ----
+            drawEffects(ctx, W, H);
+
+            // ---- STREAK / SCORE ON CANVAS ----
+            ctx.fillStyle = 'rgba(255,255,255,0.6)';
+            ctx.font = 'bold 14px "Segoe UI",sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillText(`🔥 ${streak}`, 16, 32);
+            ctx.fillStyle = 'rgba(255,255,255,0.4)';
+            ctx.font = '12px "Segoe UI",sans-serif';
+            ctx.fillText(`📦 ${stack.length}`, 16, 52);
+
+            // height marker
+            ctx.fillStyle = 'rgba(255,255,255,0.15)';
+            ctx.fillRect(W - 12, GROUND_Y - stack.length * BLOCK_H - 8, 6, stack.length * BLOCK_H + 8);
+            ctx.fillStyle = 'rgba(255,255,255,0.3)';
+            ctx.font = '11px "Segoe UI",sans-serif';
+            ctx.textAlign = 'right';
+            ctx.fillText(`${stack.length}`, W - 20, GROUND_Y - stack.length * BLOCK_H - 12);
+        }
+
+        // ---- BACKGROUND ----
+        function drawBackground(ctx, W, H) {
+            const grad = ctx.createLinearGradient(0, 0, 0, GROUND_Y);
+            grad.addColorStop(0, '#0b2a4a');
+            grad.addColorStop(0.3, '#1a4a7a');
+            grad.addColorStop(0.6, '#4a8db7');
+            grad.addColorStop(0.85, '#87CEEB');
+            grad.addColorStop(1, '#b5dffa');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, W, GROUND_Y);
+
+            // sun
+            const sx = W - 90,
+                sy = 50,
+                sr = 36;
+            const glow = ctx.createRadialGradient(sx, sy, 0, sx, sy, sr * 2.5);
+            glow.addColorStop(0, 'rgba(255,240,180,0.9)');
+            glow.addColorStop(0.3, 'rgba(255,220,120,0.5)');
+            glow.addColorStop(1, 'rgba(255,200,80,0)');
+            ctx.fillStyle = glow;
+            ctx.beginPath();
+            ctx.arc(sx, sy, sr * 2.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#fffbe6';
+            ctx.shadowColor = 'rgba(255,220,100,0.5)';
+            ctx.shadowBlur = 30;
+            ctx.beginPath();
+            ctx.arc(sx, sy, sr, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+
+            // clouds
+            if (clouds.length === 0) {
+                for (let i = 0; i < 6; i++) {
+                    clouds.push({
+                        x: Math.random() * W,
+                        y: 20 + Math.random() * 120,
+                        w: 60 + Math.random() * 100,
+                        speed: 0.15 + Math.random() * 0.25,
+                        opacity: 0.3 + Math.random() * 0.4
+                    });
                 }
-                if (btn.dataset.opt === selected && !ok) {
-                    btn.style.border = '2px solid #f87171';
-                    btn.style.background = '#3f1f1f';
+            }
+            clouds.forEach(c => {
+                c.x += c.speed;
+                if (c.x > W + 80) c.x = -c.w - 40;
+                ctx.fillStyle = `rgba(255,255,255,${c.opacity})`;
+                const r = c.w * 0.45;
+                ctx.beginPath();
+                ctx.ellipse(c.x, c.y, r, r * 0.5, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.ellipse(c.x - r * 0.6, c.y + 6, r * 0.6, r * 0.4, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.ellipse(c.x + r * 0.6, c.y + 6, r * 0.6, r * 0.4, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.ellipse(c.x - r * 0.3, c.y + 10, r * 0.7, r * 0.35, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.ellipse(c.x + r * 0.3, c.y + 10, r * 0.7, r * 0.35, 0, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // hills
+            ctx.fillStyle = 'rgba(34,80,50,0.25)';
+            ctx.beginPath();
+            ctx.moveTo(0, GROUND_Y);
+            for (let x = 0; x <= W; x += 2) {
+                const y = GROUND_Y - 18 - Math.sin(x * 0.008) * 28 - Math.sin(x * 0.015 + 1.2) * 14;
+                ctx.lineTo(x, y);
+            }
+            ctx.lineTo(W, GROUND_Y);
+            ctx.fill();
+
+            ctx.fillStyle = 'rgba(44,100,60,0.2)';
+            ctx.beginPath();
+            ctx.moveTo(0, GROUND_Y);
+            for (let x = 0; x <= W; x += 2) {
+                const y = GROUND_Y - 10 - Math.sin(x * 0.012 + 3) * 20 - Math.sin(x * 0.02 + 0.5) * 10;
+                ctx.lineTo(x, y);
+            }
+            ctx.lineTo(W, GROUND_Y);
+            ctx.fill();
+        }
+
+        // ---- GROUND ----
+        function drawGround(ctx, W, H) {
+            const gY = GROUND_Y;
+            // main ground
+            const grd = ctx.createLinearGradient(0, gY, 0, H);
+            grd.addColorStop(0, '#3a7a4a');
+            grd.addColorStop(0.15, '#2d6a3a');
+            grd.addColorStop(0.5, '#4a3a2a');
+            grd.addColorStop(1, '#2a1f14');
+            ctx.fillStyle = grd;
+            ctx.fillRect(0, gY, W, H - gY);
+
+            // grass line
+            ctx.strokeStyle = '#4a9a5a';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            for (let x = 0; x <= W; x += 4) {
+                const yy = gY - 2 - Math.sin(x * 0.1) * 3 - Math.sin(x * 0.05 + 2) * 2;
+                if (x === 0) ctx.moveTo(x, yy);
+                else ctx.lineTo(x, yy);
+            }
+            ctx.stroke();
+
+            // grass blades
+            ctx.strokeStyle = '#4a8a4a';
+            ctx.lineWidth = 1.5;
+            for (let i = 0; i < 50; i++) {
+                const x = (i / 50) * W + Math.sin(i * 1.7) * 12;
+                const h = 6 + Math.sin(i * 2.3) * 4;
+                ctx.beginPath();
+                ctx.moveTo(x, gY);
+                ctx.quadraticCurveTo(x + Math.sin(i * 0.9) * 4, gY - h - 2, x + Math.sin(i * 1.1) * 6, gY - h);
+                ctx.stroke();
+            }
+        }
+
+        // ---- BLOCKS ----
+        function drawBlocks(ctx, W, H) {
+            const total = stack.length;
+            const startY = GROUND_Y - BLOCK_H;
+
+            for (let i = 0; i < total; i++) {
+                const color = stack[i];
+                const y = startY - i * BLOCK_H;
+                const x = W / 2 - BLOCK_W / 2;
+                const isTop = (i === total - 1);
+                const animScale = (isTop && newBlockAnim < 1 && newBlockColor === color) ?
+                    0.6 + 0.4 * newBlockAnim :
+                    1;
+
+                const bw = BLOCK_W * animScale;
+                const bh = BLOCK_H * animScale;
+                const ox = (BLOCK_W - bw) / 2;
+                const oy = (BLOCK_H - bh) / 2;
+
+                // shadow
+                ctx.shadowColor = 'rgba(0,0,0,0.3)';
+                ctx.shadowBlur = 10;
+                ctx.shadowOffsetY = 4;
+
+                // main block
+                const grad = ctx.createLinearGradient(x, y, x + bw, y + bh);
+                const c = hexToRgb(color);
+                grad.addColorStop(0, `rgb(${c.r+40},${c.g+40},${c.b+40})`);
+                grad.addColorStop(0.4, color);
+                grad.addColorStop(1, `rgb(${c.r-30},${c.g-30},${c.b-30})`);
+                ctx.fillStyle = grad;
+
+                const rx = x + ox;
+                const ry = y + oy;
+                const rw = bw;
+                const rh = bh;
+                const radius = 4;
+
+                ctx.beginPath();
+                ctx.moveTo(rx + radius, ry);
+                ctx.lineTo(rx + rw - radius, ry);
+                ctx.quadraticCurveTo(rx + rw, ry, rx + rw, ry + radius);
+                ctx.lineTo(rx + rw, ry + rh - radius);
+                ctx.quadraticCurveTo(rx + rw, ry + rh, rx + rw - radius, ry + rh);
+                ctx.lineTo(rx + radius, ry + rh);
+                ctx.quadraticCurveTo(rx, ry + rh, rx, ry + rh - radius);
+                ctx.lineTo(rx, ry + radius);
+                ctx.quadraticCurveTo(rx, ry, rx + radius, ry);
+                ctx.closePath();
+                ctx.fill();
+
+                ctx.shadowBlur = 0;
+                ctx.shadowOffsetY = 0;
+
+                // highlight
+                ctx.fillStyle = 'rgba(255,255,255,0.15)';
+                ctx.fillRect(rx + 6, ry + 3, rw - 12, 4);
+
+                // border
+                ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(rx, ry, rw, rh);
+            }
+
+            // return the Y position of the top of the stack (where character stands)
+            const topY = GROUND_Y - total * BLOCK_H;
+            return topY;
+        }
+
+        // ---- CHARACTER ----
+        function drawCharacter(ctx, W, H, stackTopY) {
+            const cx = W / 2;
+            let cy = stackTopY - 8;
+
+            // falling
+            if (charFalling) {
+                fallVelocity += 0.6;
+                cy += fallVelocity;
+                fallRotation += 0.06;
+                if (cy > GROUND_Y + 60) {
+                    charFalling = false;
                 }
-            });
-
-            extraHint.innerText = ok ? '✅ korrek!' : '❌ foutief';
-
-            setTimeout(() => {
-                currentIndex++;
-                renderQuestion();
-            }, 700);
-        }
-
-        // ============================
-        //   TYPED NEXT
-        // ============================
-        function handleNext() {
-            if (answered || !quizActive) return;
-            if (mode === 'mcq') return;
-
-            const userInput = answerBox.value.trim();
-            if (userInput === '') {
-                extraHint.innerText = '⚠️ Tik eers \'n antwoord';
-                return;
             }
 
-            answered = true;
-            const q = enriched[currentIndex];
-            const correct = q.answer;
-            const ok = (userInput.toLowerCase() === correct.toLowerCase());
-
-            if (ok) score++;
-
-            userAnswers.push({
-                prompt: q.prompt,
-                user: userInput,
-                correct: ok,
-                correctAnswer: correct
-            });
-
-            extraHint.innerText = ok ? '✅ korrek!' : `❌ korrek: ${correct}`;
-            nextBtn.disabled = true;
-
-            setTimeout(() => {
-                nextBtn.disabled = false;
-                currentIndex++;
-                renderQuestion();
-            }, 750);
-        }
-
-        // ============================
-        //   FINISH
-        // ============================
-        function finishQuiz() {
-            quizActive = false;
-            quizScreen.classList.add('hidden');
-            resultScreen.classList.remove('hidden');
-
-            scoreDisplay.innerText = score;
-            totalDisplay.innerText = totalQuestions;
-
-            reviewContainer.classList.add('hidden');
-            reviewContainer.innerHTML = '';
-        }
-
-        // ============================
-        //   REVIEW
-        // ============================
-        function showReview() {
-            reviewContainer.classList.remove('hidden');
-
-            if (userAnswers.length === 0) {
-                reviewContainer.innerHTML = '<div style="color:#64748b;">Geen antwoorde nie.</div>';
-                return;
+            // bounce
+            if (bounceAnim < 1) {
+                bounceAnim += 0.08;
+                const b = Math.sin(bounceAnim * Math.PI * 2) * 4 * (1 - bounceAnim);
+                cy += b;
             }
 
-            let html = '';
-            userAnswers.forEach((ans, i) => {
-                const statusClass = ans.correct ? 'user-correct' : 'user-wrong';
-                html += `
-                    <div class="review-item">
-                        <div class="q-text">${i+1}. ${ans.prompt}</div>
-                        <div>Jou antwoord: <span class="${statusClass}">${ans.user}</span></div>
-                        <div>Regte antwoord: <span class="correct-answer">${ans.correctAnswer}</span></div>
-                    </div>
-                `;
-            });
-            reviewContainer.innerHTML = html;
+            // scale
+            const sc = charScale;
+            if (sc > 1) {
+                charScale += (1 - charScale) * 0.08;
+                if (Math.abs(charScale - 1) < 0.01) charScale = 1;
+            }
+
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.scale(sc, sc);
+            if (charFalling) {
+                ctx.rotate(fallRotation);
+            }
+
+            const s = 1;
+
+            // shadow
+            ctx.shadowColor = 'rgba(0,0,0,0.25)';
+            ctx.shadowBlur = 12;
+            ctx.shadowOffsetY = 4;
+
+            // ---- body ----
+            const bodyColor = '#3b82f6';
+            const skinColor = '#fcd9b8';
+            const darkSkin = '#e8c4a0';
+
+            // legs
+            ctx.shadowBlur = 6;
+            ctx.fillStyle = '#1e293b';
+            ctx.fillRect(-8 * s, 2 * s, 5 * s, 14 * s);
+            ctx.fillRect(3 * s, 2 * s, 5 * s, 14 * s);
+
+            // shoes
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(-10 * s, 14 * s, 9 * s, 5 * s);
+            ctx.fillRect(1 * s, 14 * s, 9 * s, 5 * s);
+
+            // body (torso)
+            ctx.shadowBlur = 12;
+            const bodyGrad = ctx.createLinearGradient(0, -20 * s, 0, 6 * s);
+            bodyGrad.addColorStop(0, '#60a5fa');
+            bodyGrad.addColorStop(1, '#2563eb');
+            ctx.fillStyle = bodyGrad;
+            ctx.beginPath();
+            ctx.roundRect(-14 * s, -20 * s, 28 * s, 28 * s, 6 * s);
+            ctx.fill();
+
+            // arms
+            ctx.shadowBlur = 6;
+            ctx.fillStyle = skinColor;
+            // left arm
+            ctx.save();
+            ctx.translate(-16 * s, -14 * s);
+            ctx.rotate(-0.2 + Math.sin(Date.now() * 0.003) * 0.06);
+            ctx.fillRect(-2 * s, 0, 5 * s, 18 * s);
+            ctx.restore();
+            // right arm
+            ctx.save();
+            ctx.translate(16 * s, -14 * s);
+            ctx.rotate(0.2 - Math.sin(Date.now() * 0.003 + 1) * 0.06);
+            ctx.fillRect(-3 * s, 0, 5 * s, 18 * s);
+            ctx.restore();
+
+            // head
+            ctx.shadowBlur = 10;
+            ctx.fillStyle = skinColor;
+            ctx.beginPath();
+            ctx.arc(0, -26 * s, 16 * s, 0, Math.PI * 2);
+            ctx.fill();
+
+            // hair
+            ctx.fillStyle = '#4a3728';
+            ctx.beginPath();
+            ctx.ellipse(0, -34 * s, 16 * s, 8 * s, 0, Math.PI, 0);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(-10 * s, -30 * s, 8 * s, 6 * s, -0.3, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(10 * s, -30 * s, 8 * s, 6 * s, 0.3, 0, Math.PI * 2);
+            ctx.fill();
+
+            // eyes
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.ellipse(-6 * s, -28 * s, 5 * s, 6 * s, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(6 * s, -28 * s, 5 * s, 6 * s, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#1a1a2e';
+            ctx.beginPath();
+            ctx.arc(-5 * s, -27 * s, 2.8 * s, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(7 * s, -27 * s, 2.8 * s, 0, Math.PI * 2);
+            ctx.fill();
+
+            // eye shine
+            ctx.fillStyle = 'rgba(255,255,255,0.7)';
+            ctx.beginPath();
+            ctx.arc(-4 * s, -29 * s, 1.2 * s, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(8 * s, -29 * s, 1.2 * s, 0, Math.PI * 2);
+            ctx.fill();
+
+            // mouth (smile)
+            ctx.strokeStyle = '#8a5a4a';
+            ctx.lineWidth = 1.5 * s;
+            ctx.beginPath();
+            ctx.arc(0, -22 * s, 6 * s, 0.1, Math.PI - 0.1);
+            ctx.stroke();
+
+            // cheeks
+            ctx.fillStyle = 'rgba(255,150,150,0.25)';
+            ctx.beginPath();
+            ctx.ellipse(-12 * s, -24 * s, 4 * s, 3 * s, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(12 * s, -24 * s, 4 * s, 3 * s, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetY = 0;
+
+            ctx.restore();
         }
 
-        // ============================
-        //   EXIT
-        // ============================
-        function exitQuiz() {
-            quizActive = false;
-            quizScreen.classList.add('hidden');
-            resultScreen.classList.add('hidden');
-            menuScreen.classList.remove('hidden');
+        // ---- EFFECTS ----
+        function drawEffects(ctx, W, H) {
+            // new block particle effect
+            if (newBlockAnim < 1) {
+                newBlockAnim += 0.04;
+                if (newBlockAnim > 1) newBlockAnim = 1;
+                // sparkles
+                const count = 12;
+                const progress = newBlockAnim;
+                const color = newBlockColor || '#fbbf24';
+                for (let i = 0; i < count; i++) {
+                    const angle = (i / count) * Math.PI * 2 + progress * 0.5;
+                    const dist = 30 + progress * 60;
+                    const x = W / 2 + Math.cos(angle) * dist * progress;
+                    const y = GROUND_Y - stack.length * BLOCK_H - 10 + Math.sin(angle) * dist * progress * 0.4;
+                    const size = 3 + Math.random() * 4 * (1 - progress * 0.5);
+                    ctx.globalAlpha = 0.8 * (1 - progress * 0.7);
+                    ctx.fillStyle = color;
+                    ctx.beginPath();
+                    ctx.arc(x, y, size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.globalAlpha = 1;
+            }
 
-            currentIndex = 0;
-            score = 0;
-            userAnswers = [];
-            answered = false;
-            reviewContainer.classList.add('hidden');
-            reviewContainer.innerHTML = '';
-            
-            // Reset UI
-            progressBar.style.width = '0%';
-            optionsContainer.innerHTML = '';
-            answerBox.value = '';
-            extraHint.innerText = '';
+            // falling dust
+            if (charFalling) {
+                const count = 10;
+                for (let i = 0; i < count; i++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const dist = 20 + Math.random() * 40;
+                    const x = W / 2 + Math.cos(angle) * dist;
+                    const y = GROUND_Y - stack.length * BLOCK_H - 4 + Math.sin(angle) * dist * 0.3;
+                    const size = 2 + Math.random() * 6;
+                    ctx.globalAlpha = 0.4 * (1 - Math.random() * 0.5);
+                    ctx.fillStyle = '#b8a080';
+                    ctx.beginPath();
+                    ctx.arc(x, y, size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.globalAlpha = 1;
+            }
         }
 
-        // ============================
+        // ---- helper: roundRect ----
+        CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+            if (r > w / 2) r = w / 2;
+            if (r > h / 2) r = h / 2;
+            this.moveTo(x + r, y);
+            this.lineTo(x + w - r, y);
+            this.quadraticCurveTo(x + w, y, x + w, y + r);
+            this.lineTo(x + w, y + h - r);
+            this.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+            this.lineTo(x + r, y + h);
+            this.quadraticCurveTo(x, y + h, x, y + h - r);
+            this.lineTo(x, y + r);
+            this.quadraticCurveTo(x, y, x + r, y);
+            return this;
+        };
+
+        // ---- hex to rgb ----
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : { r: 100, g: 100, b: 100 };
+        }
+
+        // ============================================================
+        //   GAME LOOP
+        // ============================================================
+        let animFrame = null;
+
+        function gameLoop() {
+            draw();
+            animFrame = requestAnimationFrame(gameLoop);
+        }
+
+        // ============================================================
+        //   RESTART / QUIT
+        // ============================================================
+        function restartGame() {
+            if (animFrame) cancelAnimationFrame(animFrame);
+            initGame();
+            if (animFrame) cancelAnimationFrame(animFrame);
+            gameLoop();
+        }
+
+        function quitGame() {
+            if (animFrame) cancelAnimationFrame(animFrame);
+            // show a simple reset
+            gameOverOverlay.classList.remove('show');
+            initGame();
+            if (animFrame) cancelAnimationFrame(animFrame);
+            gameLoop();
+            // focus input
+            answerInput.focus();
+        }
+
+        // expose to global for inline onclick
+        window.restartGame = restartGame;
+        window.quitGame = quitGame;
+
+        // ============================================================
         //   EVENT LISTENERS
-        // ============================
-        startBtn.addEventListener('click', function(e) {
-            console.log("Start button clicked");
-            startQuiz();
-        });
+        // ============================================================
+        submitBtn.addEventListener('click', handleAnswer);
 
-        // Enter key vir typed
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !quizScreen.classList.contains('hidden') && quizActive) {
-                if (mode === 'typed' && !answered) {
-                    handleNext();
+        answerInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                if (!isGameOver && !isAnswering) {
+                    handleAnswer();
                 }
             }
         });
 
-        // amount validation
-        amountInput.addEventListener('change', function() {
-            let v = parseInt(this.value, 10);
-            if (isNaN(v) || v < 5) this.value = 5;
-            if (v > 50) this.value = 50;
+        quitBtn.addEventListener('click', () => {
+            if (isGameOver) {
+                quitGame();
+            } else {
+                // confirm quit
+                if (confirm('Wil jy die spel stop? Jou vordering gaan verlore.')) {
+                    quitGame();
+                }
+            }
         });
 
-        // expose functions to window for inline onclick
-        window.startQuiz = startQuiz;
-        window.handleMCQ = handleMCQ;
-        window.handleNext = handleNext;
-        window.exitQuiz = exitQuiz;
-        window.showReview = showReview;
+        // click on canvas to focus input
+        canvas.addEventListener('click', () => {
+            if (!isGameOver) answerInput.focus();
+        });
 
-        console.log("App initialized. Click 'Begin toets' to start.");
-    })();
-</script>
+        // ============================================================
+        //   START
+        // ============================================================
+        initGame();
+        gameLoop();
+        answerInput.focus();
+
+        console.log('🧱 Blok Stapel Chemie • Speel tot jy verloor!');
+        console.log('📚 Vraagbank:', CHEM_BANK.length, 'items');
+    </script>
 
 </body>
 </html>
