@@ -450,16 +450,14 @@
 
             <div class="input-row">
                 <input type="text" id="answerInput" placeholder="Skryf jou antwoord..." autofocus />
-                <button class="btn btn-primary" id="submitBtn">⏎ Bevestig</button>
+                <button class="btn btn-primary" id="submitBtn">⏎ Submit</button>
                 <button class="btn btn-lava" id="lavaBtn">🌋 Lava Mode</button>
-                <button class="btn btn-danger" id="quitBtn">✕ Stop</button>
             </div>
 
             <div class="feedback-msg info" id="feedbackMsg">💡 Tik jou antwoord en druk Enter</div>
 
             <div class="stats-row">
                 <span>✅ Korrek: <span class="num green" id="scoreDisplay">0</span></span>
-                <span>🔥 Reeks: <span class="num gold" id="streakDisplay">0</span></span>
                 <span>📦 Hoogte: <span class="num blue" id="heightDisplay">3</span></span>
                 <span>🏔️ Beste hoogte: <span class="num purple" id="bestHeightDisplay">3</span></span>
                 <span id="lavaStatus" style="display:none;">🌋 <span class="num lava" id="lavaLevelDisplay">0</span></span>
@@ -509,11 +507,11 @@
         const qHint = document.getElementById('qHint');
         const answerInput = document.getElementById('answerInput');
         const submitBtn = document.getElementById('submitBtn');
-        const quitBtn = document.getElementById('quitBtn');
+        const quitBtn = null;
         const lavaBtn = document.getElementById('lavaBtn');
         const feedbackMsg = document.getElementById('feedbackMsg');
         const scoreDisplay = document.getElementById('scoreDisplay');
-        const streakDisplay = document.getElementById('streakDisplay');
+        const streakDisplay = null;
         const heightDisplay = document.getElementById('heightDisplay');
         const bestHeightDisplay = document.getElementById('bestHeightDisplay');
         const lavaStatus = document.getElementById('lavaStatus');
@@ -731,7 +729,7 @@
         // ============================================================
         function updateStats() {
             scoreDisplay.textContent = score;
-            streakDisplay.textContent = streak;
+            if (streakDisplay) streakDisplay.textContent = streak;
             heightDisplay.textContent = stack.length;
 
             updateBestHeight();
