@@ -1,360 +1,725 @@
 <!DOCTYPE html>
 <html lang="af">
 <head>
-<meta charset="UTF-8">
-<title>Chemie Toets</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚗️ Chemie Toets • Random</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            background: #0b1120;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #e2e8f0;
+            padding: 16px;
+        }
 
-<style>
-body {
-    font-family: Arial, sans-serif;
-    background: #0f172a;
-    color: white;
-    margin: 0;
-    display: flex;
-    justify-content: center;
-}
+        .container {
+            width: 100%;
+            max-width: 700px;
+            background: #111827;
+            border-radius: 28px;
+            padding: 28px 24px;
+            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.8);
+            border: 1px solid #1e293b;
+        }
 
-.container {
-    width: 95%;
-    max-width: 700px;
-    margin-top: 30px;
-    background: #111827;
-    padding: 20px;
-    border-radius: 12px;
-}
+        h1 {
+            font-weight: 500;
+            font-size: 1.9rem;
+            margin-top: 0;
+            margin-bottom: 12px;
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #f0f9ff;
+            border-bottom: 1px solid #1e293b;
+            padding-bottom: 16px;
+        }
+        h1 small {
+            font-size: 0.9rem;
+            font-weight: 300;
+            color: #94a3b8;
+            margin-left: auto;
+        }
 
-h1 { text-align: center; }
+        .menu-card {
+            background: #0f172a;
+            border-radius: 20px;
+            padding: 20px 18px;
+        }
 
-label {
-    display:block;
-    margin-top:10px;
-    color:#93c5fd;
-}
+        label {
+            display: block;
+            margin-top: 18px;
+            font-weight: 400;
+            color: #b9d0f0;
+            font-size: 0.95rem;
+            letter-spacing: 0.3px;
+        }
 
-input, select {
-    width: 100%;
-    padding: 10px;
-    border-radius: 8px;
-    border: none;
-}
+        input,
+        select {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 40px;
+            border: 1px solid #1e293b;
+            background: #0b1220;
+            color: white;
+            font-size: 1rem;
+            transition: 0.15s;
+            margin-top: 4px;
+        }
+        input:focus,
+        select:focus {
+            outline: 2px solid #3b82f6;
+            border-color: transparent;
+        }
 
-button {
-    padding: 10px;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    font-weight: bold;
-}
+        .btn {
+            border: none;
+            border-radius: 40px;
+            padding: 12px 20px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.15s;
+            background: #1e293b;
+            color: #e2e8f0;
+            width: 100%;
+            margin-top: 20px;
+            letter-spacing: 0.3px;
+        }
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+        .btn-primary:hover {
+            background: #1d4ed8;
+            transform: scale(1.01);
+        }
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #334155;
+            margin-top: 10px;
+        }
+        .btn-outline:hover {
+            background: #1e293b;
+        }
 
-.start {
-    background:#3b82f6;
-    color:white;
-    width:100%;
-    margin-top:15px;
-}
+        .hidden {
+            display: none !important;
+        }
 
-.progress {
-    height: 10px;
-    background:#1f2937;
-    border-radius:5px;
-}
+        /* PROGRESS */
+        .progress {
+            height: 8px;
+            background: #1e293b;
+            border-radius: 20px;
+            margin: 8px 0 16px 0;
+            overflow: hidden;
+        }
+        .bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #22d3ee, #3b82f6);
+            border-radius: 20px;
+            transition: width 0.3s ease;
+        }
 
-.bar {
-    height:10px;
-    background:#22c55e;
-    width:0%;
-}
+        .qnum {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            letter-spacing: 0.2px;
+        }
 
-.qnum { color:#93c5fd; }
+        .question {
+            font-size: 1.8rem;
+            font-weight: 500;
+            margin: 20px 0 10px 0;
+            line-height: 1.3;
+            background: #0f172a;
+            padding: 12px 16px;
+            border-radius: 16px;
+            border-left: 4px solid #3b82f6;
+            word-break: break-word;
+        }
 
-.question {
-    font-size:20px;
-    margin:20px 0 5px 0;
-}
+        .hint {
+            font-size: 0.9rem;
+            color: #7b9ed6;
+            margin-bottom: 16px;
+            padding-left: 4px;
+        }
 
-.hint {
-    color:#93c5fd;
-    font-size:14px;
-    margin-bottom:10px;
-}
+        #answerBox {
+            background: #0b1220;
+            border: 1px solid #2d3a52;
+            border-radius: 40px;
+            padding: 14px 18px;
+            color: white;
+            font-size: 1.1rem;
+            margin: 12px 0 8px 0;
+        }
+        #answerBox::placeholder {
+            color: #4b5a77;
+        }
 
-.options button {
-    width:100%;
-    margin:5px 0;
-    background:#374151;
-    color:white;
-}
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 16px 0 10px 0;
+        }
+        .options button {
+            background: #1e293b;
+            border: 1px solid #2d3a52;
+            border-radius: 60px;
+            padding: 14px 18px;
+            color: #f1f5f9;
+            font-size: 1rem;
+            font-weight: 500;
+            text-align: left;
+            transition: 0.1s;
+            cursor: pointer;
+        }
+        .options button:hover {
+            background: #2d3f5e;
+            border-color: #3b82f6;
+            transform: scale(1.01);
+        }
 
-.hidden { display:none; }
+        .exit-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .exit-row .btn {
+            flex: 1;
+            margin-top: 0;
+        }
 
-.exit {
-    background:#ef4444;
-    color:white;
-    width:100%;
-    margin-top:15px;
-}
+        /* RESULT */
+        .result-score {
+            background: #0f172a;
+            padding: 24px 16px;
+            border-radius: 32px;
+            text-align: center;
+            font-size: 2.2rem;
+            font-weight: 600;
+            margin: 18px 0 20px 0;
+            border: 1px solid #1e293b;
+        }
+        .result-score span {
+            color: #60a5fa;
+        }
 
-.review-box {
-    margin-top:15px;
-    max-height:300px;
-    overflow-y:auto;
-    background:#0b1220;
-    padding:10px;
-    border-radius:10px;
-}
+        .review-box {
+            max-height: 340px;
+            overflow-y: auto;
+            background: #0a111f;
+            padding: 16px 14px;
+            border-radius: 20px;
+            margin-top: 20px;
+            border: 1px solid #1e293b;
+        }
+        .review-item {
+            padding: 12px 6px;
+            border-bottom: 1px solid #1e293b;
+        }
+        .review-item:last-child {
+            border-bottom: none;
+        }
+        .review-item .user-wrong {
+            color: #f87171;
+        }
+        .review-item .user-correct {
+            color: #4ade80;
+        }
+        .review-item .correct-answer {
+            color: #93c5fd;
+        }
+        .review-item .q-text {
+            font-weight: 500;
+            font-size: 1.05rem;
+        }
 
-.correct { color:#22c55e; }
-.wrong { color:#ef4444; }
-</style>
+        .badge {
+            display: inline-block;
+            background: #1e293b;
+            padding: 2px 12px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-right: 6px;
+        }
+
+        /* scroll */
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b1220;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 12px;
+        }
+    </style>
 </head>
-
 <body>
 
 <div class="container">
 
-<!-- MENU -->
-<div id="menu">
-    <h1>⚗️ Chemie Toets</h1>
+    <!-- ===== MENU ===== -->
+    <div id="menuScreen">
+        <h1>🧪 Chemie Toets <small>vraagbank • 50+</small></h1>
+        <div class="menu-card">
+            <label>📊 Aantal vrae (5–50)</label>
+            <input type="number" id="amountInput" min="5" max="50" value="15">
 
-    <label>Totale vrae:</label>
-    <input type="number" id="amount" min="5" max="50" value="10">
+            <label>🎯 Antwoord tipe</label>
+            <select id="modeSelect">
+                <option value="typed">✍️ Tik-antwoord</option>
+                <option value="mcq">🔘 Veelkeuse (4 opsies)</option>
+            </select>
 
-    <label>Antwoord tipe:</label>
-    <select id="mode">
-        <option value="typed">✍️ Tik-antwoord</option>
-        <option value="mcq">🔘 Veelkeuse</option>
-    </select>
+            <button class="btn btn-primary" onclick="startQuiz()">🚀 Begin toets</button>
+        </div>
+        <div style="margin-top: 12px; font-size: 0.8rem; color: #475569; text-align: center; border-top: 1px solid #1e293b; padding-top: 14px;">
+            ⚡ willekeurig · geen herhaling binne toets
+        </div>
+    </div>
 
-    <button class="start" onclick="startQuiz()">Begin Toets</button>
-</div>
+    <!-- ===== QUIZ ===== -->
+    <div id="quizScreen" class="hidden">
+        <div class="progress"><div class="bar" id="progressBar"></div></div>
+        <div class="qnum" id="qnumLabel">Vraag 1 / 15</div>
 
-<!-- QUIZ -->
-<div id="quiz" class="hidden">
+        <div class="question" id="questionText">OH⁻</div>
+        <div class="hint" id="hintText">⏳ tik die naam of formule</div>
 
-    <div class="progress"><div class="bar" id="bar"></div></div>
-    <div class="qnum" id="qnum"></div>
+        <input id="answerBox" class="hidden" placeholder="Skryf jou antwoord..." autofocus>
 
-    <div class="question" id="question"></div>
-    <div class="hint" id="hint"></div>
+        <div class="options" id="optionsContainer"></div>
 
-    <input id="answerBox" class="hidden" placeholder="Tik antwoord...">
+        <div class="exit-row">
+            <button class="btn btn-danger" onclick="exitQuiz()">🚪 Stop</button>
+            <button class="btn btn-primary" id="nextBtn" onclick="handleNext()">Volgende →</button>
+        </div>
+        <div style="margin-top: 6px; font-size:0.8rem; color:#475569;" id="extraHint"></div>
+    </div>
 
-    <div class="options" id="options"></div>
+    <!-- ===== RESULT ===== -->
+    <div id="resultScreen" class="hidden">
+        <h2 style="font-weight:400; margin-bottom:4px;">📋 Klaar!</h2>
+        <div class="result-score">
+            <span id="scoreDisplay">0</span> / <span id="totalDisplay">0</span>
+        </div>
 
-    <button class="exit" onclick="exitQuiz()">🚪 Exit</button>
-</div>
+        <button class="btn btn-primary" onclick="showReview()">📖 Review antwoorde</button>
+        <button class="btn btn-outline" onclick="exitQuiz()">🏠 Terug na menu</button>
 
-<!-- RESULT -->
-<div id="resultScreen" class="hidden">
-    <h2>🎉 Toets voltooi!</h2>
-
-    <div id="finalScore"></div>
-
-    <button class="start" onclick="review()">📋 Review Antwoorde</button>
-    <button class="exit" onclick="exitQuiz()">🏠 Terug na Menu</button>
-
-    <div class="review-box" id="reviewBox"></div>
-</div>
+        <div id="reviewContainer" class="review-box hidden"></div>
+    </div>
 
 </div>
 
 <script>
+    // ============================
+    //   GROOT VOLLEDIGE DATABANK
+    // ============================
+    const FULL_BANK = [
+        // --- Anione (poliatomies) ---
+        { q: "OH⁻", a: "hidroksied" },
+        { q: "NO₃⁻", a: "nitraation" },
+        { q: "NO₂⁻", a: "nitrietioon" },
+        { q: "MnO₄⁻", a: "permanganaation" },
+        { q: "ClO₃⁻", a: "chloraation" },
+        { q: "CH₃COO⁻", a: "asetaation" },
+        { q: "HCO₃⁻", a: "waterstofkarbonaat" },
+        { q: "HSO₄⁻", a: "waterstofsulfaatioon" },
+        { q: "SO₄²⁻", a: "sulfaatioon" },
+        { q: "MnO₄²⁻", a: "manganaation" },   // (let op: in tabel as MnO4²⁻)
+        { q: "SO₃²⁻", a: "sulfietioon" },
+        { q: "CO₃²⁻", a: "karbonaation" },
+        { q: "CrO₄²⁻", a: "chromaatioon" },
+        { q: "Cr₂O₇²⁻", a: "dichromaatioon" },
+        { q: "O₂²⁻", a: "peroksiedioon" },
+        { q: "PO₄³⁻", a: "fosfaation" },
+        // --- Katione ---
+        { q: "NH₄⁺", a: "ammoniumioon" },
+        { q: "H₃O⁺", a: "hidroniumioon" },
+        // --- Molekules (nie-metale) ---
+        { q: "H₂O", a: "water" },
+        { q: "NH₃", a: "ammoniak" },
+        { q: "HCl", a: "soutsuur" },
+        { q: "H₂SO₄", a: "swawelsuur" },
+        { q: "HNO₃", a: "salpetersuur" },
+        { q: "H₂CO₃", a: "koolsuur" },
+        { q: "CH₃COOH", a: "asynsuur" },
+        { q: "CO₂", a: "koolstofdioksied" },
+        { q: "P₂O₅", a: "difosforpentoksied" },
+        { q: "NO₂", a: "stikstofdioksied" },
+        { q: "N₂O₄", a: "distikstoftetraoksied" },
+        { q: "PCl₅", a: "fosforpentachloried" },
+        { q: "BF₃", a: "boor trifluoried" },
+        // ekstra (variante)
+        { q: "HSO₃⁻", a: "waterstofsulfietioon" },
+        { q: "Cl⁻", a: "chloriedioon" },     // (enkel, maar ons hou dit)
+        { q: "Na⁺", a: "natriumioon" },
+        { q: "Mg²⁺", a: "magnesiumioon" },
+        { q: "Al³⁺", a: "aluminiumioon" },
+        { q: "Ca²⁺", a: "kalsiumioon" },
+        { q: "K⁺", a: "kaliumioon" },
+    ];
 
-const data = [
-    {q:"OH⁻", a:"hidroksied"},
-    {q:"NO3⁻", a:"nitraation"},
-    {q:"NH4⁺", a:"ammonium"},
-    {q:"H2O", a:"water"},
-    {q:"CO3²⁻", a:"karbonaation"},
-    {q:"ClO3⁻", a:"chloraation"},
-    {q:"SO4²⁻", a:"sulfaatioon"},
-    {q:"PO4³⁻", a:"fosfaation"},
-    {q:"HCl", a:"soutsuur"},
-    {q:"NO2⁻", a:"nitrietioon"}
-];
+    // ============================
+    //   STATE
+    // ============================
+    let quizQuestions = [];        // array van { q, a } (ruwe items)
+    let enriched = [];           // { prompt, answer, type, rawQ, rawA }
+    let currentIndex = 0;
+    let score = 0;
+    let userAnswers = [];        // { prompt, user, correct, correctAnswer }
+    let mode = 'typed';
+    let totalQuestions = 15;
+    let answered = false;        // voorkom dubbelklik
 
-let quizData = [];
-let index = 0;
-let score = 0;
-let answers = [];
-let mode = "typed";
-let locked = false;
-
-function shuffle(arr){
-    return arr.sort(() => Math.random() - 0.5);
-}
-
-function getQuestion(item){
-    let askFormula = Math.random() < 0.5;
-
-    if(askFormula){
-        return { prompt:item.q, answer:item.a, type:"formula" };
-    } else {
-        return { prompt:item.a, answer:item.q, type:"name" };
-    }
-}
-
-/* ---------------- START ---------------- */
-function startQuiz(){
-    let amount = parseInt(document.getElementById("amount").value);
-    mode = document.getElementById("mode").value;
-
-    if(amount < 5) amount = 5;
-    if(amount > 50) amount = 50;
-
-    // ✅ FIXED: Now supports any number of questions up to 50
-    // It recycles the question bank if more questions are requested
-    let shuffledData = shuffle([...data]);
-    quizData = [];
-    
-    while (quizData.length < amount) {
-        // If we have enough remaining items in shuffledData, take from there
-        if (quizData.length + shuffledData.length <= amount) {
-            quizData.push(...shuffledData);
-            // Reshuffle the data for the next batch
-            shuffledData = shuffle([...data]);
-        } else {
-            // Take only what we need to reach the amount
-            let needed = amount - quizData.length;
-            quizData.push(...shuffledData.slice(0, needed));
+    // ============================
+    //   SHUFFLE
+    // ============================
+    function shuffleArray(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
         }
+        return arr;
     }
 
-    index = 0;
-    score = 0;
-    answers = [];
+    // ============================
+    //   START QUIZ
+    // ============================
+    function startQuiz() {
+        // lees instellings
+        const amountInput = document.getElementById('amountInput');
+        let amt = parseInt(amountInput.value, 10);
+        if (isNaN(amt) || amt < 5) amt = 5;
+        if (amt > 50) amt = 50;
+        totalQuestions = amt;
+        amountInput.value = amt;
 
-    document.getElementById("menu").classList.add("hidden");
-    document.getElementById("resultScreen").classList.add("hidden");
-    document.getElementById("quiz").classList.remove("hidden");
+        mode = document.getElementById('modeSelect').value;
 
-    show();
-}
+        // --- bou 'n random lys sonder herhaling (binne toets) ---
+        // 1) skud volledige bank
+        const shuffledBank = shuffleArray([...FULL_BANK]);
 
-/* ---------------- MCQ OPTIONS ---------------- */
-function makeOptions(correct, type){
-    let opts = new Set([correct]);
+        // 2) as ons meer vrae as bank, herhaal met nuwe skud (maar uniek per toets)
+        let pool = [];
+        while (pool.length < totalQuestions) {
+            // as ons nie genoeg het nie, skud weer en voeg by
+            if (pool.length + shuffledBank.length <= totalQuestions) {
+                pool.push(...shuffledBank);
+                // as ons nogsteeds nie genoeg het nie, skud 'n vars kopie
+                if (pool.length < totalQuestions) {
+                    const extra = shuffleArray([...FULL_BANK]);
+                    pool.push(...extra);
+                }
+            } else {
+                // neem net wat ons kort
+                const needed = totalQuestions - pool.length;
+                pool.push(...shuffledBank.slice(0, needed));
+            }
+        }
 
-    while(opts.size < 4){
-        let rand = (type === "formula")
-            ? data[Math.floor(Math.random()*data.length)].a
-            : data[Math.floor(Math.random()*data.length)].q;
+        // kap tot presiese lengte (sou nie nodig wees nie, maar veilig)
+        quizQuestions = pool.slice(0, totalQuestions);
 
-        opts.add(rand);
+        // --- verryk met vraag-tipe (formule → naam OF naam → formule) ---
+        enriched = quizQuestions.map(item => {
+            const askFormula = Math.random() < 0.5;
+            if (askFormula) {
+                return {
+                    prompt: item.q,
+                    answer: item.a,
+                    type: 'formula',
+                    rawQ: item.q,
+                    rawA: item.a
+                };
+            } else {
+                return {
+                    prompt: item.a,
+                    answer: item.q,
+                    type: 'name',
+                    rawQ: item.q,
+                    rawA: item.a
+                };
+            }
+        });
+
+        // reset state
+        currentIndex = 0;
+        score = 0;
+        userAnswers = [];
+        answered = false;
+
+        // skerms
+        document.getElementById('menuScreen').classList.add('hidden');
+        document.getElementById('resultScreen').classList.add('hidden');
+        document.getElementById('quizScreen').classList.remove('hidden');
+
+        // wys eerste vraag
+        renderQuestion();
     }
 
-    return [...opts].sort(() => Math.random() - 0.5);
-}
+    // ============================
+    //   RENDER VRAAG
+    // ============================
+    function renderQuestion() {
+        if (currentIndex >= enriched.length) {
+            finishQuiz();
+            return;
+        }
 
-function show(){
-    locked = false;
+        answered = false;
+        const q = enriched[currentIndex];
+        const total = enriched.length;
 
-    let item = getQuestion(quizData[index]);
-    quizData[index] = item;
+        // progress
+        document.getElementById('progressBar').style.width = ((currentIndex) / total * 100) + '%';
+        document.getElementById('qnumLabel').innerText = `Vraag ${currentIndex+1} / ${total}`;
 
-    document.getElementById("question").innerText = item.prompt;
+        // vraag teks
+        document.getElementById('questionText').innerText = q.prompt;
 
-    document.getElementById("qnum").innerText =
-        `Vraag ${index+1} van ${quizData.length}`;
+        // hint (klein)
+        const hintEl = document.getElementById('hintText');
+        if (q.type === 'formula') {
+            hintEl.innerText = '📌 Skryf die naam van die verbinding / ioon';
+        } else {
+            hintEl.innerText = '📌 Skryf die formule (bv. H₂O)';
+        }
 
-    document.getElementById("bar").style.width =
-        (index / quizData.length) * 100 + "%";
+        // opsies / antwoord blok
+        const optionsContainer = document.getElementById('optionsContainer');
+        const answerBox = document.getElementById('answerBox');
 
-    document.getElementById("answerBox").value = "";
+        if (mode === 'mcq') {
+            answerBox.classList.add('hidden');
+            optionsContainer.classList.remove('hidden');
 
-    if(mode === "typed"){
-        document.getElementById("answerBox").classList.remove("hidden");
-        document.getElementById("options").innerHTML = "";
-    } else {
-        document.getElementById("answerBox").classList.add("hidden");
+            // bou 4 opsies (een korrek + 3 distraksies)
+            const correctAns = q.answer;
+            let opts = new Set();
+            opts.add(correctAns);
 
-        let opts = makeOptions(item.answer, item.type);
+            // versamel moontlike distraksies (uit die volle bank, maar nie korrek nie)
+            const allPossible = FULL_BANK.map(item => item.a).concat(FULL_BANK.map(item => item.q));
+            const poolDist = allPossible.filter(x => x !== correctAns);
 
-        document.getElementById("options").innerHTML =
-            opts.map(o =>
-                `<button onclick="checkMCQ('${o}')">${o}</button>`
-            ).join("");
+            while (opts.size < 4) {
+                const rand = poolDist[Math.floor(Math.random() * poolDist.length)];
+                opts.add(rand);
+            }
+
+            const optArr = shuffleArray([...opts]);
+
+            optionsContainer.innerHTML = optArr.map(opt =>
+                `<button data-opt="${opt}" onclick="handleMCQ('${opt}')">${opt}</button>`
+            ).join('');
+
+            // verwyder vorige "next" klik
+            document.getElementById('nextBtn').classList.add('hidden');
+            document.getElementById('extraHint').innerText = 'Kies een opsie';
+
+        } else {
+            // typed
+            answerBox.classList.remove('hidden');
+            optionsContainer.classList.add('hidden');
+            answerBox.value = '';
+            answerBox.focus();
+            document.getElementById('nextBtn').classList.remove('hidden');
+            document.getElementById('extraHint').innerText = 'Druk Enter of klik "Volgende"';
+        }
+
+        // update volgende knoppie
+        const nextBtn = document.getElementById('nextBtn');
+        nextBtn.innerText = (currentIndex === total - 1) ? '✅ Klaar' : 'Volgende →';
     }
-}
 
-function checkMCQ(answer){
-    if(locked) return;
-    locked = true;
+    // ============================
+    //   MCQ HANDLE
+    // ============================
+    function handleMCQ(selected) {
+        if (answered) return;
+        answered = true;
+        const q = enriched[currentIndex];
+        const correct = q.answer;
+        const ok = (selected.toLowerCase().trim() === correct.toLowerCase().trim());
 
-    save(answer);
-    next();
-}
+        if (ok) score++;
 
-function checkTyped(){
-    if(locked) return;
-    locked = true;
+        userAnswers.push({
+            prompt: q.prompt,
+            user: selected,
+            correct: ok,
+            correctAnswer: correct
+        });
 
-    let user = document.getElementById("answerBox").value;
-    save(user);
-    next();
-}
+        // wys visuele terugvoer
+        const btns = document.querySelectorAll('#optionsContainer button');
+        btns.forEach(btn => {
+            btn.style.opacity = '0.6';
+            if (btn.dataset.opt === correct) {
+                btn.style.border = '2px solid #4ade80';
+                btn.style.background = '#1e3a2a';
+            }
+            if (btn.dataset.opt === selected && !ok) {
+                btn.style.border = '2px solid #f87171';
+                btn.style.background = '#3f1f1f';
+            }
+        });
 
-document.addEventListener("keydown", e=>{
-    if(e.key === "Enter" && mode === "typed") checkTyped();
-});
+        document.getElementById('extraHint').innerText = ok ? '✅ korrek!' : '❌ foutief';
 
-function save(user){
-    let correct = quizData[index].answer;
+        // outomaties volgende na 0.8s
+        setTimeout(() => {
+            currentIndex++;
+            renderQuestion();
+        }, 700);
+    }
 
-    let ok = user.toLowerCase().trim() === correct.toLowerCase();
+    // ============================
+    //   TYPED NEXT (handmatig of enter)
+    // ============================
+    function handleNext() {
+        if (answered) return;
+        if (mode === 'mcq') return; // nie gebruik vir mcq
 
-    if(ok) score++;
+        const answerBox = document.getElementById('answerBox');
+        const userInput = answerBox.value.trim();
+        if (userInput === '') {
+            document.getElementById('extraHint').innerText = '⚠️ Tik eers 'n antwoord';
+            return;
+        }
 
-    answers.push({
-        q: quizData[index].prompt,
-        user,
-        correct,
-        ok
+        answered = true;
+        const q = enriched[currentIndex];
+        const correct = q.answer;
+        const ok = (userInput.toLowerCase() === correct.toLowerCase());
+
+        if (ok) score++;
+
+        userAnswers.push({
+            prompt: q.prompt,
+            user: userInput,
+            correct: ok,
+            correctAnswer: correct
+        });
+
+        document.getElementById('extraHint').innerText = ok ? '✅ korrek!' : `❌ korrek: ${correct}`;
+        document.getElementById('nextBtn').disabled = true;
+
+        setTimeout(() => {
+            document.getElementById('nextBtn').disabled = false;
+            currentIndex++;
+            renderQuestion();
+        }, 750);
+    }
+
+    // Enter key vir typed
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !document.getElementById('quizScreen').classList.contains('hidden')) {
+            if (mode === 'typed' && !answered) {
+                handleNext();
+            }
+        }
     });
-}
 
-function next(){
-    index++;
-    if(index >= quizData.length) return finish();
-    setTimeout(show, 400);
-}
+    // ============================
+    //   FINISH
+    // ============================
+    function finishQuiz() {
+        document.getElementById('quizScreen').classList.add('hidden');
+        document.getElementById('resultScreen').classList.remove('hidden');
 
-function finish(){
-    document.getElementById("quiz").classList.add("hidden");
-    document.getElementById("resultScreen").classList.remove("hidden");
+        document.getElementById('scoreDisplay').innerText = score;
+        document.getElementById('totalDisplay').innerText = totalQuestions;
 
-    let percent = Math.round((score/quizData.length)*100);
+        document.getElementById('reviewContainer').classList.add('hidden');
+        document.getElementById('reviewContainer').innerHTML = '';
+    }
 
-    document.getElementById("finalScore").innerHTML =
-        `Punt: ${score}/${quizData.length} (${percent}%)`;
-}
+    // ============================
+    //   REVIEW
+    // ============================
+    function showReview() {
+        const container = document.getElementById('reviewContainer');
+        container.classList.remove('hidden');
 
-function review(){
-    let html = "<h3>📋 Review</h3>";
+        if (userAnswers.length === 0) {
+            container.innerHTML = '<div style="color:#64748b;">Geen antwoorde nie.</div>';
+            return;
+        }
 
-    answers.forEach((a,i)=>{
-        html += `
-        <div>
-            <b>${i+1}. ${a.q}</b><br>
-            Jou antwoord: <span class="${a.ok?'correct':'wrong'}">${a.user}</span><br>
-            Regte antwoord: <span class="correct">${a.correct}</span>
-            <hr>
-        </div>`;
+        let html = '';
+        userAnswers.forEach((ans, i) => {
+            const statusClass = ans.correct ? 'user-correct' : 'user-wrong';
+            html += `
+                <div class="review-item">
+                    <div class="q-text">${i+1}. ${ans.prompt}</div>
+                    <div>Jou antwoord: <span class="${statusClass}">${ans.user}</span></div>
+                    <div>Regte antwoord: <span class="correct-answer">${ans.correctAnswer}</span></div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
+
+    // ============================
+    //   EXIT
+    // ============================
+    function exitQuiz() {
+        document.getElementById('quizScreen').classList.add('hidden');
+        document.getElementById('resultScreen').classList.add('hidden');
+        document.getElementById('menuScreen').classList.remove('hidden');
+
+        // reset
+        currentIndex = 0;
+        score = 0;
+        userAnswers = [];
+        answered = false;
+        document.getElementById('reviewContainer').classList.add('hidden');
+        document.getElementById('reviewContainer').innerHTML = '';
+    }
+
+    // ekstra: as iemand die amount veld verander, hou binne perke
+    document.getElementById('amountInput').addEventListener('change', function() {
+        let v = parseInt(this.value, 10);
+        if (isNaN(v) || v < 5) this.value = 5;
+        if (v > 50) this.value = 50;
     });
 
-    document.getElementById("reviewBox").innerHTML = html;
-}
-
-function exitQuiz(){
-    document.getElementById("quiz").classList.add("hidden");
-    document.getElementById("resultScreen").classList.add("hidden");
-    document.getElementById("menu").classList.remove("hidden");
-
-    index = 0;
-    score = 0;
-    answers = [];
-}
-
+    // ============================
+    //   INIT (toon menu)
+    // ============================
+    // (Alles begin sigbaar)
 </script>
 
 </body>
