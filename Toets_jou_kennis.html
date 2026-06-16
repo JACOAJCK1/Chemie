@@ -2118,15 +2118,17 @@
             }
         });
 
-        quitBtn.addEventListener('click', () => {
-            if (isGameOver) {
+if (quitBtn) {
+    quitBtn.addEventListener('click', () => {
+        if (isGameOver) {
+            quitGame();
+        } else {
+            if (confirm('Wil jy die spel stop? Jou vordering gaan verlore.')) {
                 quitGame();
-            } else {
-                if (confirm('Wil jy die spel stop? Jou vordering gaan verlore.')) {
-                    quitGame();
-                }
             }
-        });
+        }
+    });
+}
 
         canvas.addEventListener('click', () => {
             if (!isGameOver) answerInput.focus();
