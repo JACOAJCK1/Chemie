@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>🧱 Blok Stapel • Chemie • Lava</title>
+    <title>🧱 Blok Stapel • Chemie • Harte</title>
     <style>
         * {
             box-sizing: border-box;
@@ -230,6 +230,9 @@
         .stats-row .num.danger {
             color: #f87171;
         }
+        .stats-row .num.purple {
+            color: #a78bfa;
+        }
 
         .feedback-msg {
             font-size: 0.95rem;
@@ -251,6 +254,10 @@
             color: #fb923c;
             font-weight: 600;
             animation: lavaWarning 0.5s ease-in-out infinite alternate;
+        }
+        .feedback-msg.heart-loss {
+            color: #fbbf24;
+            font-weight: 600;
         }
         @keyframes lavaWarning {
             0% {
@@ -424,6 +431,7 @@
                     <div style="display:flex; justify-content:center; gap:20px; color:#94a3b8; font-size:0.9rem;">
                         <span>📦 <span id="finalBlocks" style="color:#e2e8f0;font-weight:600;">0</span> blokke</span>
                         <span>🔥 <span id="finalStreak" style="color:#fbbf24;font-weight:600;">0</span> langste reeks</span>
+                        <span>🏔️ <span id="finalBestHeight" style="color:#a78bfa;font-weight:600;">0</span></span>
                     </div>
                     <div class="btn-group">
                         <button class="btn btn-primary" onclick="restartGame()">🔄 Probeer weer</button>
@@ -453,7 +461,7 @@
                 <span>✅ Korrek: <span class="num green" id="scoreDisplay">0</span></span>
                 <span>🔥 Reeks: <span class="num gold" id="streakDisplay">0</span></span>
                 <span>📦 Hoogte: <span class="num blue" id="heightDisplay">3</span></span>
-                <span>🏆 Beste: <span class="num gold" id="bestStreakDisplay">0</span></span>
+                <span>🏔️ Beste hoogte: <span class="num purple" id="bestHeightDisplay">3</span></span>
                 <span id="lavaStatus" style="display:none;">🌋 <span class="num lava" id="lavaLevelDisplay">0</span></span>
             </div>
         </div>
@@ -507,13 +515,14 @@
         const scoreDisplay = document.getElementById('scoreDisplay');
         const streakDisplay = document.getElementById('streakDisplay');
         const heightDisplay = document.getElementById('heightDisplay');
-        const bestStreakDisplay = document.getElementById('bestStreakDisplay');
+        const bestHeightDisplay = document.getElementById('bestHeightDisplay');
         const lavaStatus = document.getElementById('lavaStatus');
         const lavaLevelDisplay = document.getElementById('lavaLevelDisplay');
         const gameOverOverlay = document.getElementById('gameOverOverlay');
         const finalScore = document.getElementById('finalScore');
         const finalBlocks = document.getElementById('finalBlocks');
         const finalStreak = document.getElementById('finalStreak');
+        const finalBestHeight = document.getElementById('finalBestHeight');
         const gameOverTitle = document.getElementById('gameOverTitle');
         const gameOverSub = document.getElementById('gameOverSub');
 
@@ -525,11 +534,13 @@
         const GROUND_Y = 430;
         const START_BLOCKS = 3;
         const CHAR_SCREEN_Y = 160;
+        const MAX_LIVES = 3;
 
         let stack = [];
         let score = 0;
         let streak = 0;
-        let bestStreak = 0;
+        let bestStreak = 0; // still tracked internally
+        let lives = MAX_LIVES;
         let isGameOver = false;
         let isAnswering = false;
 
@@ -548,18 +559,58 @@
 
         let cameraOffset = 0;
 
-        // Lava mode – now even slower!
+        // Best height (persisted)
+        let bestHeight = START_BLOCKS;
+
+        // Lava mode
         let isLavaMode = false;
         let lavaLevel = GROUND_Y;
-        let lavaSpeed = 0.05; // extremely slow base speed
+        let lavaSpeed = 0.05;
         let lavaTime = 0;
         let lavaBubbles = [];
         let lavaWarningActive = false;
+
+        // Heart loss animation
+        let heartLossIndex = -1; // which heart index (0-based) is being lost
+        let heartLossTimer = 0;
+        const HEART_LOSS_DURATION = 30; // frames
 
         // Stars
         let stars = [];
         let flyingObjects = [];
         let spawnTimer = 0;
+
+        // ============================================================
+        //   BEST HEIGHT (localStorage)
+        // ============================================================
+        function loadBestHeight() {
+            try {
+                const val = localStorage.getItem('chemStackBestHeight');
+                if (val !== null) {
+                    const parsed = parseInt(val, 10);
+                    if (!isNaN(parsed) && parsed > 0) {
+                        bestHeight = parsed;
+                        return;
+                    }
+                }
+            } catch (e) { /* ignore */ }
+            bestHeight = START_BLOCKS;
+        }
+
+        function saveBestHeight() {
+            try {
+                localStorage.setItem('chemStackBestHeight', String(bestHeight));
+            } catch (e) { /* ignore */ }
+        }
+
+        function updateBestHeight() {
+            const current = stack.length;
+            if (current > bestHeight) {
+                bestHeight = current;
+                saveBestHeight();
+            }
+            bestHeightDisplay.textContent = bestHeight;
+        }
 
         // ============================================================
         //   INIT
@@ -573,6 +624,7 @@
             score = 0;
             streak = 0;
             bestStreak = 0;
+            lives = MAX_LIVES;
             isGameOver = false;
             isAnswering = false;
             charFalling = false;
@@ -585,12 +637,16 @@
             flyingObjects = [];
             spawnTimer = 0;
             lavaWarningActive = false;
+            heartLossIndex = -1;
+            heartLossTimer = 0;
+
+            loadBestHeight();
 
             if (resetLava) {
                 lavaLevel = GROUND_Y;
                 lavaTime = 0;
                 lavaBubbles = [];
-                lavaSpeed = 0.05; // reset to very slow
+                lavaSpeed = 0.05;
             }
 
             // Generate stars
@@ -614,7 +670,8 @@
             answerInput.value = '';
             answerInput.focus();
             feedbackMsg.className = 'feedback-msg info';
-            feedbackMsg.textContent = isLavaMode ? '🌋 LAVA MODE! Antwoord vinnig!' : '💡 Tik jou antwoord en druk Enter';
+            feedbackMsg.textContent = isLavaMode ? '🌋 LAVA MODE! 3 harte • Antwoord vinnig!' :
+                '💡 3 harte • Tik jou antwoord en druk Enter';
         }
 
         function getColorPalette() {
@@ -659,7 +716,10 @@
             answerInput.disabled = false;
             answerInput.focus();
             feedbackMsg.className = 'feedback-msg info';
-            feedbackMsg.textContent = isLavaMode ? '🌋 Vinnig! Antwoord voor die lawa jou kry!' : '💡 Tik jou antwoord...';
+            const heartMsg = `❤️ × ${lives}`;
+            feedbackMsg.textContent = isLavaMode ?
+                `🌋 Vinnig! ${heartMsg}` :
+                `💡 Tik jou antwoord... ${heartMsg}`;
         }
 
         // ============================================================
@@ -669,7 +729,9 @@
             scoreDisplay.textContent = score;
             streakDisplay.textContent = streak;
             heightDisplay.textContent = stack.length;
-            bestStreakDisplay.textContent = bestStreak;
+            // bestStreakDisplay is removed, but we still update bestStreak internally
+
+            updateBestHeight();
 
             if (isLavaMode) {
                 lavaStatus.style.display = 'inline';
@@ -699,11 +761,12 @@
             const ok = (userAns === correct);
 
             if (ok) {
+                // CORRECT: always gain a block
                 score++;
                 streak++;
                 if (streak > bestStreak) bestStreak = streak;
                 feedbackMsg.className = 'feedback-msg correct';
-                feedbackMsg.textContent = '✅ Korrek! +1 blok!';
+                feedbackMsg.textContent = `✅ Korrek! +1 blok! ❤️ × ${lives}`;
                 const colors = getColorPalette();
                 const newColor = colors[stack.length % colors.length];
                 stack.push(newColor);
@@ -714,9 +777,8 @@
                 updateStats();
                 answerInput.disabled = true;
 
-                // In lava mode, speed up lava very slightly (even smaller increment)
                 if (isLavaMode) {
-                    lavaSpeed = Math.min(0.4, lavaSpeed + 0.002); // tiny increase
+                    lavaSpeed = Math.min(0.4, lavaSpeed + 0.002);
                 }
 
                 setTimeout(() => {
@@ -730,28 +792,87 @@
                 }, 400);
 
             } else {
-                feedbackMsg.className = 'feedback-msg wrong';
-                feedbackMsg.textContent = `❌ Foutief! Regte antwoord: ${currentCorrect}`;
-                charFalling = true;
-                fallVelocity = 0;
-                fallRotation = 0;
-                isGameOver = true;
-                answerInput.disabled = true;
-                submitBtn.disabled = true;
+                // WRONG
+                if (isLavaMode) {
+                    // In lava mode: no heart loss, just don't move up, reset streak, and continue
+                    streak = 0;
+                    feedbackMsg.className = 'feedback-msg heart-loss';
+                    feedbackMsg.textContent = `❌ Foutief! Regte antwoord: ${currentCorrect} • Geen blokkie • ❤️ × ${lives}`;
+                    answerInput.disabled = true;
 
-                setTimeout(() => {
-                    finalScore.textContent = score;
-                    finalBlocks.textContent = stack.length;
-                    finalStreak.textContent = bestStreak;
-                    gameOverTitle.textContent = isLavaMode ? '🌋 Verbrand!' : '💥 O nee!';
-                    gameOverSub.textContent = isLavaMode ? 'Die lawa het jou gekry!' : 'Die mannetjie het afgeval!';
-                    gameOverOverlay.classList.add('show');
-                    submitBtn.disabled = false;
-                }, 1200);
+                    // Reset streak and update stats
+                    updateStats();
+
+                    setTimeout(() => {
+                        isAnswering = false;
+                        generateQuestion();
+                        answerInput.disabled = false;
+                        answerInput.focus();
+                        draw();
+                    }, 700);
+                } else {
+                    // Normal mode: lose a heart
+                    lives--;
+                    const heartMsg = `❤️ × ${lives}`;
+
+                    if (lives > 0) {
+                        // Still have hearts left
+                        feedbackMsg.className = 'feedback-msg heart-loss';
+                        feedbackMsg.textContent = `❌ Foutief! Regte antwoord: ${currentCorrect} • ${heartMsg}`;
+                        answerInput.disabled = true;
+
+                        // Reset streak
+                        streak = 0;
+                        // Trigger heart loss animation
+                        triggerHeartLoss(lives); // after losing, lives is new count, so lost heart is at index lives (since 0-based)
+                        updateStats();
+
+                        setTimeout(() => {
+                            isAnswering = false;
+                            generateQuestion();
+                            answerInput.disabled = false;
+                            answerInput.focus();
+                            draw();
+                        }, 800);
+
+                    } else {
+                        // NO HEARTS LEFT – GAME OVER
+                        feedbackMsg.className = 'feedback-msg wrong';
+                        feedbackMsg.textContent = `💔 Geen harte meer! Regte antwoord: ${currentCorrect}`;
+                        charFalling = true;
+                        fallVelocity = 0;
+                        fallRotation = 0;
+                        isGameOver = true;
+                        answerInput.disabled = true;
+                        submitBtn.disabled = true;
+
+                        updateBestHeight();
+
+                        setTimeout(() => {
+                            finalScore.textContent = score;
+                            finalBlocks.textContent = stack.length;
+                            finalStreak.textContent = bestStreak;
+                            finalBestHeight.textContent = bestHeight;
+                            gameOverTitle.textContent = isLavaMode ? '🌋 Verbrand!' : '💔 Geen harte!';
+                            gameOverSub.textContent = isLavaMode ? 'Die lawa het jou gekry!' :
+                                'Jy het al jou harte verloor!';
+                            gameOverOverlay.classList.add('show');
+                            submitBtn.disabled = false;
+                        }, 1200);
+                    }
+                }
             }
 
             updateStats();
             draw();
+        }
+
+        // ============================================================
+        //   HEART LOSS ANIMATION
+        // ============================================================
+        function triggerHeartLoss(lostIndex) {
+            heartLossIndex = lostIndex; // the index that was lost (0-based)
+            heartLossTimer = HEART_LOSS_DURATION;
         }
 
         // ============================================================
@@ -777,11 +898,9 @@
         function updateLava() {
             if (!isLavaMode || isGameOver) return;
 
-            // Lava rises very slowly – height scaling reduced further
-            const speedFactor = 1 + (stack.length - 3) * 0.006; // even smaller factor
+            const speedFactor = 1 + (stack.length - 3) * 0.006;
             lavaLevel -= lavaSpeed * speedFactor * 0.6;
 
-            // Clamp lava so it doesn't go above the top of the screen
             const screenLavaY = lavaLevel - cameraOffset;
             if (screenLavaY < -50) {
                 lavaLevel = cameraOffset - 50;
@@ -790,29 +909,49 @@
             // Check if lava reached the character
             const charFeetY = getStackTopY();
             if (lavaLevel <= charFeetY + 4) {
-                // LAVA REACHED THE CHARACTER!
-                isGameOver = true;
-                charFalling = true;
-                fallVelocity = 0;
-                fallRotation = 0;
-                answerInput.disabled = true;
-                submitBtn.disabled = true;
+                // Lava touched the character!
+                if (lives > 0) {
+                    // Lose a heart, move lava down by 3 blocks
+                    lives--;
+                    // Move lava down (increase Y)
+                    lavaLevel = Math.min(GROUND_Y, lavaLevel + BLOCK_H * 3);
+                    // Trigger heart loss animation for the lost heart (index = lives after decrement)
+                    triggerHeartLoss(lives);
+                    // Reset streak
+                    streak = 0;
+                    // Feedback
+                    feedbackMsg.className = 'feedback-msg heart-loss';
+                    feedbackMsg.textContent = `🌋 Lava het jou gebrand! ❤️ × ${lives}`;
+                    updateStats();
+                    // No game over yet
+                } else {
+                    // No lives left – game over
+                    isGameOver = true;
+                    charFalling = true;
+                    fallVelocity = 0;
+                    fallRotation = 0;
+                    answerInput.disabled = true;
+                    submitBtn.disabled = true;
 
-                feedbackMsg.className = 'feedback-msg wrong';
-                feedbackMsg.textContent = '🌋 Die lawa het jou verbrand!';
+                    feedbackMsg.className = 'feedback-msg wrong';
+                    feedbackMsg.textContent = '🌋 Die lawa het jou verbrand!';
 
-                setTimeout(() => {
-                    finalScore.textContent = score;
-                    finalBlocks.textContent = stack.length;
-                    finalStreak.textContent = bestStreak;
-                    gameOverTitle.textContent = '🌋 Verbrand!';
-                    gameOverSub.textContent = 'Die lawa het jou ingehaal!';
-                    gameOverOverlay.classList.add('show');
-                    submitBtn.disabled = false;
-                }, 1200);
+                    updateBestHeight();
+
+                    setTimeout(() => {
+                        finalScore.textContent = score;
+                        finalBlocks.textContent = stack.length;
+                        finalStreak.textContent = bestStreak;
+                        finalBestHeight.textContent = bestHeight;
+                        gameOverTitle.textContent = '🌋 Verbrand!';
+                        gameOverSub.textContent = 'Die lawa het jou ingehaal!';
+                        gameOverOverlay.classList.add('show');
+                        submitBtn.disabled = false;
+                    }, 1200);
+                }
             }
 
-            // Spawn fewer bubbles
+            // Spawn bubbles
             if (Math.random() < 0.04) {
                 const screenLavaY2 = lavaLevel - cameraOffset;
                 if (screenLavaY2 < 480 && screenLavaY2 > -50) {
@@ -829,7 +968,6 @@
                 }
             }
 
-            // Update bubbles
             for (let i = lavaBubbles.length - 1; i >= 0; i--) {
                 const b = lavaBubbles[i];
                 b.y -= b.speed;
@@ -840,18 +978,16 @@
                 }
             }
 
-            // Limit bubbles
             if (lavaBubbles.length > 40) {
                 lavaBubbles.splice(0, lavaBubbles.length - 40);
             }
 
-            // Lava warning
             const distToChar = (lavaLevel - getStackTopY()) / BLOCK_H;
             lavaWarningActive = (distToChar < 4 && distToChar > 0);
 
             if (lavaWarningActive) {
                 feedbackMsg.className = 'feedback-msg lava-warning';
-                feedbackMsg.textContent = `🌋 WAARSKUWING! Lava is ${Math.round(distToChar)} blokke weg!`;
+                feedbackMsg.textContent = `🌋 WAARSKUWING! Lava is ${Math.round(distToChar)} blokke weg! ❤️ × ${lives}`;
             }
 
             updateStats();
@@ -1042,6 +1178,102 @@
         }
 
         // ============================================================
+        //   DRAW HEARTS
+        // ============================================================
+        function drawHearts(ctx, W, H) {
+            const heartSize = 22;
+            const spacing = 28;
+            const startX = W - 16;
+            const startY = 22;
+
+            for (let i = 0; i < MAX_LIVES; i++) {
+                const x = startX - i * spacing;
+                const y = startY;
+                const filled = i < lives;
+
+                // Check if this heart is being lost
+                const isLosing = (heartLossIndex === i && heartLossTimer > 0);
+
+                ctx.save();
+                ctx.translate(x, y);
+
+                let scale = 1;
+                let alpha = 1;
+                if (isLosing) {
+                    // Pulse and fade animation
+                    const progress = 1 - (heartLossTimer / HEART_LOSS_DURATION);
+                    scale = 1 + progress * 0.6;
+                    alpha = 1 - progress * 0.8;
+                    // Also rotate a bit
+                    ctx.rotate(progress * 0.3);
+                }
+
+                ctx.scale(scale, scale);
+                ctx.globalAlpha = alpha;
+
+                const s = heartSize / 24;
+                ctx.scale(s, s);
+
+                // Heart path
+                ctx.beginPath();
+                ctx.moveTo(0, 6);
+                ctx.bezierCurveTo(-8, -2, -14, -8, -14, -14);
+                ctx.bezierCurveTo(-14, -20, -6, -24, 0, -18);
+                ctx.bezierCurveTo(6, -24, 14, -20, 14, -14);
+                ctx.bezierCurveTo(14, -8, 8, -2, 0, 6);
+                ctx.closePath();
+
+                if (filled && !isLosing) {
+                    ctx.shadowColor = 'rgba(239, 68, 68, 0.4)';
+                    ctx.shadowBlur = 12;
+                    ctx.fillStyle = '#ef4444';
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                    ctx.fillStyle = 'rgba(255,200,200,0.25)';
+                    ctx.beginPath();
+                    ctx.moveTo(-3, -6);
+                    ctx.bezierCurveTo(-6, -10, -10, -12, -10, -14);
+                    ctx.bezierCurveTo(-10, -17, -6, -19, -3, -15);
+                    ctx.fill();
+                } else if (isLosing) {
+                    // During loss animation: still red but fading
+                    ctx.fillStyle = '#ef4444';
+                    ctx.shadowColor = 'rgba(239, 68, 68, 0.6)';
+                    ctx.shadowBlur = 20;
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                } else {
+                    // Lost heart – grey outline with X
+                    ctx.strokeStyle = '#4b5563';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                    ctx.fillStyle = 'rgba(75, 85, 99, 0.15)';
+                    ctx.fill();
+                    ctx.strokeStyle = '#4b5563';
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.moveTo(-8, -16);
+                    ctx.lineTo(8, -6);
+                    ctx.moveTo(8, -16);
+                    ctx.lineTo(-8, -6);
+                    ctx.stroke();
+                }
+
+                ctx.shadowBlur = 0;
+                ctx.globalAlpha = 1;
+                ctx.restore();
+            }
+
+            // Update heart loss timer
+            if (heartLossTimer > 0) {
+                heartLossTimer--;
+                if (heartLossTimer === 0) {
+                    heartLossIndex = -1;
+                }
+            }
+        }
+
+        // ============================================================
         //   RENDER (CANVAS)
         // ============================================================
         function draw() {
@@ -1057,13 +1289,29 @@
 
             ctx.clearRect(0, 0, W, H);
 
+            // ---- Background ----
             drawBackground(ctx, W, H);
-            drawLava(ctx, W, H);
+
+            // ---- Ground ----
             drawGround(ctx, W, H);
-            const stackTopY = drawBlocks(ctx, W, H);
-            drawCharacter(ctx, W, H, stackTopY);
+
+            // ---- Flying objects (behind everything) ----
             drawFlyingObjects(ctx);
+
+            // ---- Lava ----
+            drawLava(ctx, W, H);
+
+            // ---- Blocks ----
+            const stackTopY = drawBlocks(ctx, W, H);
+
+            // ---- Character ----
+            drawCharacter(ctx, W, H, stackTopY);
+
+            // ---- Effects ----
             drawEffects(ctx, W, H);
+
+            // ---- Hearts (top right) ----
+            drawHearts(ctx, W, H);
 
             // ---- UI op canvas ----
             const lvl = stack.length;
@@ -1118,10 +1366,11 @@
             ctx.textAlign = 'center';
             ctx.fillText(`${emoji} ${statusText}`, W / 2, 30);
 
-            ctx.fillStyle = 'rgba(255,255,255,0.15)';
+            // Best height indicator
+            ctx.fillStyle = 'rgba(167, 139, 250, 0.5)';
             ctx.font = '10px "Segoe UI",sans-serif';
             ctx.textAlign = 'right';
-            ctx.fillText(`vlak ${lvl}`, W - 12, H - 10);
+            ctx.fillText(`🏔️ ${bestHeight}`, W - 12, H - 10);
 
             // Lava gloed op die rande
             if (isLavaMode && !isGameOver) {
@@ -1309,7 +1558,6 @@
             const screenLavaY = lavaLevel - cameraOffset;
             if (screenLavaY > H + 20) return;
 
-            // Lava gloed
             const glowGrad = ctx.createRadialGradient(W / 2, screenLavaY + 20, 10, W / 2, screenLavaY + 20, 250);
             glowGrad.addColorStop(0, 'rgba(255,120,30,0.15)');
             glowGrad.addColorStop(0.5, 'rgba(255,60,10,0.08)');
@@ -1317,7 +1565,6 @@
             ctx.fillStyle = glowGrad;
             ctx.fillRect(0, screenLavaY - 30, W, H - screenLavaY + 30);
 
-            // Lava lyf
             const lavaGrad = ctx.createLinearGradient(0, screenLavaY - 30, 0, H);
             lavaGrad.addColorStop(0, 'rgba(255,160,30,0.9)');
             lavaGrad.addColorStop(0.05, 'rgba(255,100,20,0.95)');
@@ -1327,7 +1574,6 @@
             lavaGrad.addColorStop(1, 'rgba(60,5,2,0.9)');
             ctx.fillStyle = lavaGrad;
 
-            // Golwende oppervlak
             const time = Date.now() * 0.001;
             ctx.beginPath();
             ctx.moveTo(0, screenLavaY);
@@ -1342,7 +1588,6 @@
             ctx.closePath();
             ctx.fill();
 
-            // Bubbles
             for (const b of lavaBubbles) {
                 const screenY = b.y;
                 if (screenY < -10 || screenY > H + 10) continue;
@@ -1364,7 +1609,6 @@
             ctx.globalAlpha = 1;
             ctx.shadowBlur = 0;
 
-            // Ligte gloed op die rand
             const edgeGrad = ctx.createLinearGradient(0, screenLavaY - 8, 0, screenLavaY + 8);
             edgeGrad.addColorStop(0, 'rgba(255,200,100,0)');
             edgeGrad.addColorStop(0.3, 'rgba(255,180,80,0.4)');
@@ -1374,7 +1618,6 @@
             ctx.fillStyle = edgeGrad;
             ctx.fillRect(0, screenLavaY - 8, W, 16);
 
-            // Lawa oppervlak glans
             for (let i = 0; i < 8; i++) {
                 const x = 40 + i * 95 + Math.sin(time * 0.5 + i * 1.1) * 20;
                 const yOff = Math.sin(x * 0.03 + time * 1.1) * 3;
@@ -1715,7 +1958,7 @@
                 lavaBtn.textContent = '🌋 Lava: AAN';
                 lavaBtn.classList.add('active');
                 lavaLevel = GROUND_Y;
-                lavaSpeed = 0.05; // very slow
+                lavaSpeed = 0.05;
                 lavaTime = 0;
                 lavaBubbles = [];
                 if (animFrame) cancelAnimationFrame(animFrame);
@@ -1723,7 +1966,7 @@
                 if (animFrame) cancelAnimationFrame(animFrame);
                 gameLoop();
                 feedbackMsg.className = 'feedback-msg lava-warning';
-                feedbackMsg.textContent = '🌋 LAVA MODE GEAKTIVEER! Antwoord vinnig!';
+                feedbackMsg.textContent = '🌋 LAVA MODE! 3 harte • Antwoord vinnig!';
             } else {
                 lavaBtn.textContent = '🌋 Lava Mode';
                 lavaBtn.classList.remove('active');
@@ -1733,7 +1976,7 @@
                 if (animFrame) cancelAnimationFrame(animFrame);
                 gameLoop();
                 feedbackMsg.className = 'feedback-msg info';
-                feedbackMsg.textContent = '💡 Lava mode gedeaktiveer. Tik jou antwoord.';
+                feedbackMsg.textContent = '💡 3 harte • Tik jou antwoord en druk Enter';
             }
 
             answerInput.focus();
@@ -1744,6 +1987,7 @@
         // ============================================================
         function restartGame() {
             if (animFrame) cancelAnimationFrame(animFrame);
+            loadBestHeight();
             if (isLavaMode) {
                 initGame(false);
                 lavaLevel = GROUND_Y;
@@ -1807,12 +2051,13 @@
         // ============================================================
         //   START
         // ============================================================
+        loadBestHeight();
         initGame(true);
         gameLoop();
         answerInput.focus();
 
-        console.log('🧱 Blok Stapel Chemie • 🌋 Lava Mode is nou baie stadig!');
-        console.log('Druk die "Lava Mode" knoppie om te begin.');
+        console.log('🧱 Blok Stapel Chemie • ❤️ 3 harte (Lava: foute kos nie harte)');
+        console.log('🏔️ Beste hoogte word onthou.');
     </script>
 
 </body>
