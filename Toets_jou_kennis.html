@@ -539,7 +539,7 @@
         let stack = [];
         let score = 0;
         let streak = 0;
-        let bestStreak = 0; // still tracked internally
+        let bestStreak = 0;
         let lives = MAX_LIVES;
         let isGameOver = false;
         let isAnswering = false;
@@ -571,9 +571,12 @@
         let lavaWarningActive = false;
 
         // Heart loss animation
-        let heartLossIndex = -1; // which heart index (0-based) is being lost
+        let heartLossIndex = -1;
         let heartLossTimer = 0;
-        const HEART_LOSS_DURATION = 30; // frames
+        const HEART_LOSS_DURATION = 40; // frames – longer for better visibility
+
+        // Heart particles for extra visual feedback
+        let heartParticles = [];
 
         // Stars
         let stars = [];
@@ -639,6 +642,7 @@
             lavaWarningActive = false;
             heartLossIndex = -1;
             heartLossTimer = 0;
+            heartParticles = [];
 
             loadBestHeight();
 
@@ -729,7 +733,6 @@
             scoreDisplay.textContent = score;
             streakDisplay.textContent = streak;
             heightDisplay.textContent = stack.length;
-            // bestStreakDisplay is removed, but we still update bestStreak internally
 
             updateBestHeight();
 
@@ -740,6 +743,32 @@
                 lavaLevelDisplay.className = 'num ' + (dist < 3 ? 'danger' : 'lava');
             } else {
                 lavaStatus.style.display = 'none';
+            }
+        }
+
+        // ============================================================
+        //   HEART LOSS – trigger animation + particles
+        // ============================================================
+        function triggerHeartLoss(lostIndex, x, y) {
+            heartLossIndex = lostIndex;
+            heartLossTimer = HEART_LOSS_DURATION;
+
+            // Spawn particles for extra visual feedback
+            const colors = ['#ef4444', '#f87171', '#fca5a5', '#fff'];
+            for (let i = 0; i < 16; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = 1 + Math.random() * 4;
+                heartParticles.push({
+                    x: x || 0,
+                    y: y || 0,
+                    vx: Math.cos(angle) * speed * (0.5 + Math.random() * 0.5),
+                    vy: Math.sin(angle) * speed * (0.5 + Math.random() * 0.5) - 1.5,
+                    r: 2 + Math.random() * 4,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    life: 30 + Math.random() * 30,
+                    maxLife: 30 + Math.random() * 30,
+                    gravity: 0.06
+                });
             }
         }
 
@@ -761,7 +790,7 @@
             const ok = (userAns === correct);
 
             if (ok) {
-                // CORRECT: always gain a block
+                // CORRECT
                 score++;
                 streak++;
                 if (streak > bestStreak) bestStreak = streak;
@@ -794,13 +823,11 @@
             } else {
                 // WRONG
                 if (isLavaMode) {
-                    // In lava mode: no heart loss, just don't move up, reset streak, and continue
+                    // Lava mode: no heart loss, just don't move up, reset streak, continue
                     streak = 0;
                     feedbackMsg.className = 'feedback-msg heart-loss';
                     feedbackMsg.textContent = `❌ Foutief! Regte antwoord: ${currentCorrect} • Geen blokkie • ❤️ × ${lives}`;
                     answerInput.disabled = true;
-
-                    // Reset streak and update stats
                     updateStats();
 
                     setTimeout(() => {
@@ -812,67 +839,62 @@
                     }, 700);
                 } else {
                     // Normal mode: lose a heart
+                    const oldLives = lives;
                     lives--;
-                    const heartMsg = `❤️ × ${lives}`;
 
-                    if (lives > 0) {
-                        // Still have hearts left
+                    if (lives >= 0) {
+                        const heartMsg = `❤️ × ${lives}`;
                         feedbackMsg.className = 'feedback-msg heart-loss';
                         feedbackMsg.textContent = `❌ Foutief! Regte antwoord: ${currentCorrect} • ${heartMsg}`;
                         answerInput.disabled = true;
-
-                        // Reset streak
                         streak = 0;
-                        // Trigger heart loss animation
-                        triggerHeartLoss(lives); // after losing, lives is new count, so lost heart is at index lives (since 0-based)
+
+                        // Trigger animation for the lost heart (index = lives, since 0-based)
+                        // Position at top-right of canvas
+                        const heartX = canvas.width - 16 - (lives) * 28;
+                        const heartY = 22;
+                        triggerHeartLoss(lives, heartX, heartY);
+
                         updateStats();
 
-                        setTimeout(() => {
-                            isAnswering = false;
-                            generateQuestion();
-                            answerInput.disabled = false;
-                            answerInput.focus();
-                            draw();
-                        }, 800);
+                        if (lives === 0) {
+                            // No hearts left – game over immediately
+                            setTimeout(() => {
+                                isGameOver = true;
+                                charFalling = true;
+                                fallVelocity = 0;
+                                fallRotation = 0;
+                                answerInput.disabled = true;
+                                submitBtn.disabled = true;
 
-                    } else {
-                        // NO HEARTS LEFT – GAME OVER
-                        feedbackMsg.className = 'feedback-msg wrong';
-                        feedbackMsg.textContent = `💔 Geen harte meer! Regte antwoord: ${currentCorrect}`;
-                        charFalling = true;
-                        fallVelocity = 0;
-                        fallRotation = 0;
-                        isGameOver = true;
-                        answerInput.disabled = true;
-                        submitBtn.disabled = true;
+                                updateBestHeight();
 
-                        updateBestHeight();
-
-                        setTimeout(() => {
-                            finalScore.textContent = score;
-                            finalBlocks.textContent = stack.length;
-                            finalStreak.textContent = bestStreak;
-                            finalBestHeight.textContent = bestHeight;
-                            gameOverTitle.textContent = isLavaMode ? '🌋 Verbrand!' : '💔 Geen harte!';
-                            gameOverSub.textContent = isLavaMode ? 'Die lawa het jou gekry!' :
-                                'Jy het al jou harte verloor!';
-                            gameOverOverlay.classList.add('show');
-                            submitBtn.disabled = false;
-                        }, 1200);
+                                finalScore.textContent = score;
+                                finalBlocks.textContent = stack.length;
+                                finalStreak.textContent = bestStreak;
+                                finalBestHeight.textContent = bestHeight;
+                                gameOverTitle.textContent = isLavaMode ? '🌋 Verbrand!' : '💔 Geen harte!';
+                                gameOverSub.textContent = isLavaMode ? 'Die lawa het jou gekry!' :
+                                    'Jy het al jou harte verloor!';
+                                gameOverOverlay.classList.add('show');
+                                submitBtn.disabled = false;
+                                draw();
+                            }, 500);
+                        } else {
+                            setTimeout(() => {
+                                isAnswering = false;
+                                generateQuestion();
+                                answerInput.disabled = false;
+                                answerInput.focus();
+                                draw();
+                            }, 800);
+                        }
                     }
                 }
             }
 
             updateStats();
             draw();
-        }
-
-        // ============================================================
-        //   HEART LOSS ANIMATION
-        // ============================================================
-        function triggerHeartLoss(lostIndex) {
-            heartLossIndex = lostIndex; // the index that was lost (0-based)
-            heartLossTimer = HEART_LOSS_DURATION;
         }
 
         // ============================================================
@@ -893,7 +915,7 @@
         }
 
         // ============================================================
-        //   LAVA LOGIC
+        //   LAVA LOGIC – FIXED: game over when lives reaches 0
         // ============================================================
         function updateLava() {
             if (!isLavaMode || isGameOver) return;
@@ -906,26 +928,48 @@
                 lavaLevel = cameraOffset - 50;
             }
 
-            // Check if lava reached the character
             const charFeetY = getStackTopY();
             if (lavaLevel <= charFeetY + 4) {
-                // Lava touched the character!
                 if (lives > 0) {
-                    // Lose a heart, move lava down by 3 blocks
+                    // Lose a heart
+                    const oldLives = lives;
                     lives--;
-                    // Move lava down (increase Y)
                     lavaLevel = Math.min(GROUND_Y, lavaLevel + BLOCK_H * 3);
-                    // Trigger heart loss animation for the lost heart (index = lives after decrement)
-                    triggerHeartLoss(lives);
-                    // Reset streak
                     streak = 0;
-                    // Feedback
+
+                    // Trigger heart loss animation at the heart position
+                    const heartX = canvas.width - 16 - (lives) * 28;
+                    const heartY = 22;
+                    triggerHeartLoss(lives, heartX, heartY);
+
                     feedbackMsg.className = 'feedback-msg heart-loss';
                     feedbackMsg.textContent = `🌋 Lava het jou gebrand! ❤️ × ${lives}`;
                     updateStats();
-                    // No game over yet
+
+                    // If no hearts left, game over
+                    if (lives === 0) {
+                        isGameOver = true;
+                        charFalling = true;
+                        fallVelocity = 0;
+                        fallRotation = 0;
+                        answerInput.disabled = true;
+                        submitBtn.disabled = true;
+
+                        updateBestHeight();
+
+                        setTimeout(() => {
+                            finalScore.textContent = score;
+                            finalBlocks.textContent = stack.length;
+                            finalStreak.textContent = bestStreak;
+                            finalBestHeight.textContent = bestHeight;
+                            gameOverTitle.textContent = '🌋 Verbrand!';
+                            gameOverSub.textContent = 'Die lawa het jou ingehaal!';
+                            gameOverOverlay.classList.add('show');
+                            submitBtn.disabled = false;
+                        }, 800);
+                    }
                 } else {
-                    // No lives left – game over
+                    // No lives – game over
                     isGameOver = true;
                     charFalling = true;
                     fallVelocity = 0;
@@ -1178,7 +1222,7 @@
         }
 
         // ============================================================
-        //   DRAW HEARTS
+        //   DRAW HEARTS – with proper animation
         // ============================================================
         function drawHearts(ctx, W, H) {
             const heartSize = 22;
@@ -1186,12 +1230,37 @@
             const startX = W - 16;
             const startY = 22;
 
+            // Update heart particles
+            for (let i = heartParticles.length - 1; i >= 0; i--) {
+                const p = heartParticles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += p.gravity;
+                p.life--;
+                if (p.life <= 0) {
+                    heartParticles.splice(i, 1);
+                }
+            }
+
+            // Draw particles (burst effect when heart is lost)
+            for (const p of heartParticles) {
+                const alpha = p.life / p.maxLife;
+                ctx.globalAlpha = alpha;
+                ctx.fillStyle = p.color;
+                ctx.shadowColor = 'rgba(239,68,68,0.3)';
+                ctx.shadowBlur = 8;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.r * alpha, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.globalAlpha = 1;
+            ctx.shadowBlur = 0;
+
             for (let i = 0; i < MAX_LIVES; i++) {
                 const x = startX - i * spacing;
                 const y = startY;
                 const filled = i < lives;
 
-                // Check if this heart is being lost
                 const isLosing = (heartLossIndex === i && heartLossTimer > 0);
 
                 ctx.save();
@@ -1199,22 +1268,37 @@
 
                 let scale = 1;
                 let alpha = 1;
+                let rotation = 0;
+                let glowIntensity = 0;
+
                 if (isLosing) {
-                    // Pulse and fade animation
                     const progress = 1 - (heartLossTimer / HEART_LOSS_DURATION);
-                    scale = 1 + progress * 0.6;
-                    alpha = 1 - progress * 0.8;
-                    // Also rotate a bit
-                    ctx.rotate(progress * 0.3);
+                    // Pulse: grow then shrink
+                    scale = 1 + Math.sin(progress * Math.PI) * 0.7;
+                    alpha = 1 - progress * 0.85;
+                    rotation = progress * 0.4;
+                    glowIntensity = 1 - progress;
                 }
 
                 ctx.scale(scale, scale);
-                ctx.globalAlpha = alpha;
+                ctx.globalAlpha = Math.max(0, alpha);
+                if (rotation) ctx.rotate(rotation);
 
                 const s = heartSize / 24;
                 ctx.scale(s, s);
 
-                // Heart path
+                // Glow for losing heart
+                if (isLosing && glowIntensity > 0) {
+                    const grad = ctx.createRadialGradient(0, -10, 2, 0, -10, 30);
+                    grad.addColorStop(0, `rgba(239,68,68,${glowIntensity * 0.5})`);
+                    grad.addColorStop(1, 'rgba(239,68,68,0)');
+                    ctx.fillStyle = grad;
+                    ctx.beginPath();
+                    ctx.arc(0, -10, 30, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                // Heart shape
                 ctx.beginPath();
                 ctx.moveTo(0, 6);
                 ctx.bezierCurveTo(-8, -2, -14, -8, -14, -14);
@@ -1236,14 +1320,24 @@
                     ctx.bezierCurveTo(-10, -17, -6, -19, -3, -15);
                     ctx.fill();
                 } else if (isLosing) {
-                    // During loss animation: still red but fading
+                    // Animation: bright red with glow
+                    ctx.shadowColor = `rgba(239, 68, 68, ${0.6 + glowIntensity * 0.4})`;
+                    ctx.shadowBlur = 25;
                     ctx.fillStyle = '#ef4444';
-                    ctx.shadowColor = 'rgba(239, 68, 68, 0.6)';
-                    ctx.shadowBlur = 20;
                     ctx.fill();
                     ctx.shadowBlur = 0;
+                    // Sparkle
+                    if (glowIntensity > 0.3) {
+                        ctx.fillStyle = `rgba(255,255,255,${glowIntensity * 0.5})`;
+                        ctx.beginPath();
+                        ctx.arc(-3, -12, 2 + glowIntensity * 3, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.beginPath();
+                        ctx.arc(4, -10, 1 + glowIntensity * 2, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
                 } else {
-                    // Lost heart – grey outline with X
+                    // Lost heart – grey with X
                     ctx.strokeStyle = '#4b5563';
                     ctx.lineWidth = 2;
                     ctx.stroke();
@@ -1289,28 +1383,28 @@
 
             ctx.clearRect(0, 0, W, H);
 
-            // ---- Background ----
+            // 1. Background
             drawBackground(ctx, W, H);
 
-            // ---- Ground ----
+            // 2. Ground
             drawGround(ctx, W, H);
 
-            // ---- Flying objects (behind everything) ----
+            // 3. Flying objects (behind blocks and character)
             drawFlyingObjects(ctx);
 
-            // ---- Lava ----
-            drawLava(ctx, W, H);
-
-            // ---- Blocks ----
+            // 4. Blocks
             const stackTopY = drawBlocks(ctx, W, H);
 
-            // ---- Character ----
+            // 5. Lava (covers blocks below the lava surface)
+            drawLava(ctx, W, H);
+
+            // 6. Character (on top of lava and blocks)
             drawCharacter(ctx, W, H, stackTopY);
 
-            // ---- Effects ----
+            // 7. Effects
             drawEffects(ctx, W, H);
 
-            // ---- Hearts (top right) ----
+            // 8. Hearts (top right) – with animation
             drawHearts(ctx, W, H);
 
             // ---- UI op canvas ----
@@ -1331,7 +1425,6 @@
                 ctx.fillText(`🌋 ${dist} blokke`, 16, 72);
             }
 
-            // Hoogte-aanwyser
             const screenStackH = stack.length * BLOCK_H;
             const barY = GROUND_Y - cameraOffset - screenStackH - 8;
             if (barY > -20 && barY < H + 20) {
@@ -1344,7 +1437,6 @@
                 ctx.fillText(`${stack.length}`, W - 20, labelY);
             }
 
-            // Status
             let statusText = '';
             let statusColor = '#94a3b8';
             let emoji = '🌍';
@@ -1366,13 +1458,11 @@
             ctx.textAlign = 'center';
             ctx.fillText(`${emoji} ${statusText}`, W / 2, 30);
 
-            // Best height indicator
             ctx.fillStyle = 'rgba(167, 139, 250, 0.5)';
             ctx.font = '10px "Segoe UI",sans-serif';
             ctx.textAlign = 'right';
             ctx.fillText(`🏔️ ${bestHeight}`, W - 12, H - 10);
 
-            // Lava gloed op die rande
             if (isLavaMode && !isGameOver) {
                 const screenLavaY = lavaLevel - cameraOffset;
                 const distToChar = (lavaLevel - getStackTopY()) / BLOCK_H;
@@ -1414,7 +1504,6 @@
             ctx.fillStyle = grad;
             ctx.fillRect(0, 0, W, GROUND_Y - cameraOffset + 20);
 
-            // Sterre
             if (lvl >= 11) {
                 const starBrightness = Math.min(1, (lvl - 10) / 5);
                 stars.forEach(s => {
@@ -1429,7 +1518,6 @@
                 ctx.globalAlpha = 1;
             }
 
-            // Maan
             if (lvl >= 14) {
                 const moonX = 700 + Math.sin(Date.now() * 0.0002) * 20;
                 const moonY = 65 + Math.sin(Date.now() * 0.0004 + 1.2) * 12;
@@ -1494,7 +1582,6 @@
                 ctx.fill();
             }
 
-            // Wolke
             const cloudAlpha = Math.max(0, 1 - (lvl - 8) / 8);
             if (cloudAlpha > 0 && lvl < 16) {
                 for (let i = 0; i < 6; i++) {
@@ -1524,7 +1611,6 @@
                 ctx.globalAlpha = 1;
             }
 
-            // Heuwels
             const hillAlpha = Math.max(0, 1 - (lvl - 8) / 10);
             if (hillAlpha > 0 && lvl < 18) {
                 ctx.globalAlpha = hillAlpha * 0.4;
@@ -2056,7 +2142,7 @@
         gameLoop();
         answerInput.focus();
 
-        console.log('🧱 Blok Stapel Chemie • ❤️ 3 harte (Lava: foute kos nie harte)');
+        console.log('🧱 Blok Stapel Chemie • ❤️ 3 harte met animasie!');
         console.log('🏔️ Beste hoogte word onthou.');
     </script>
 
